@@ -27,7 +27,7 @@ const baloo = Baloo_2({
 
 export const metadata: Metadata = {
   title: "Ruang Cerita",
-  description: "Tulis dan baca ceritamu dengan pengalaman visual yang imersif.",
+  description: "Sebab tidak semua hal mampu diucapkan, dan tidak semua perasaan menemukan tempat untuk pulang.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

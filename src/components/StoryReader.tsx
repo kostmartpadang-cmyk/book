@@ -17,6 +17,7 @@ import {
   ArrowUp,
   ArrowDown,
   UserCheck,
+  ChevronDown,
 } from 'lucide-react';
 import { themes, DEFAULT_THEME } from '@/lib/themes';
 import { useAuth } from './AuthProvider';
@@ -93,6 +94,7 @@ export default function StoryReader({
   const { authHeader } = useAuth();
   const [effect, setEffect] = useState<Effect>('none');
   const [showSettings, setShowSettings] = useState(false);
+  const [showChapterDropdown, setShowChapterDropdown] = useState(false);
   const [spread, setSpread] = useState(0);
   const [activeChapterId, setActiveChapterId] = useState(chapters[0]?.id);
   const [editMode, setEditMode] = useState<'none' | 'edit' | 'add'>('none');
@@ -485,45 +487,108 @@ export default function StoryReader({
 
       {/* Chapter selector */}
       {chapters.length > 1 && (
-        <div className="flex items-center gap-2 mb-8 flex-wrap">
-          {chapters.map((c, idx) => {
-            const extraIdx = idx - 1; // index within non-"main" chapters, -1 for main
-            return (
-              <div
-                key={c.id}
-                className={`flex items-center rounded-full border transition-colors ${
-                  c.id === activeChapterId
-                    ? 'bg-primary text-white border-primary'
-                    : 'bg-surface border-border text-ink-muted hover:bg-surface-hover hover:text-ink'
-                }`}
-              >
-                <button onClick={() => setActiveChapterId(c.id)} className="px-3.5 py-1.5 text-sm font-medium">
-                  {c.title}
-                </button>
-                {isOwner && extraIdx >= 0 && (
-                  <div className="flex items-center pr-1.5 gap-0.5">
-                    <button
-                      onClick={() => moveChapter(c.id, 'up')}
-                      disabled={extraIdx === 0}
-                      aria-label="Pindah ke atas"
-                      className="p-1 rounded-full disabled:opacity-30 disabled:cursor-not-allowed hover:bg-black/10"
-                    >
-                      <ArrowUp size={12} />
-                    </button>
-                    <button
-                      onClick={() => moveChapter(c.id, 'down')}
-                      disabled={extraIdx === chapters.length - 2}
-                      aria-label="Pindah ke bawah"
-                      className="p-1 rounded-full disabled:opacity-30 disabled:cursor-not-allowed hover:bg-black/10"
-                    >
-                      <ArrowDown size={12} />
-                    </button>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+        <>
+          {/* Desktop/tablet: chip row */}
+          <div className="hidden sm:flex items-center gap-2 mb-8 flex-wrap">
+            {chapters.map((c, idx) => {
+              const extraIdx = idx - 1; // index within non-"main" chapters, -1 for main
+              return (
+                <div
+                  key={c.id}
+                  className={`flex items-center rounded-full border transition-colors ${
+                    c.id === activeChapterId
+                      ? 'bg-primary text-white border-primary'
+                      : 'bg-surface border-border text-ink-muted hover:bg-surface-hover hover:text-ink'
+                  }`}
+                >
+                  <button onClick={() => setActiveChapterId(c.id)} className="px-3.5 py-1.5 text-sm font-medium">
+                    {c.title}
+                  </button>
+                  {isOwner && extraIdx >= 0 && (
+                    <div className="flex items-center pr-1.5 gap-0.5">
+                      <button
+                        onClick={() => moveChapter(c.id, 'up')}
+                        disabled={extraIdx === 0}
+                        aria-label="Pindah ke atas"
+                        className="p-1 rounded-full disabled:opacity-30 disabled:cursor-not-allowed hover:bg-black/10"
+                      >
+                        <ArrowUp size={12} />
+                      </button>
+                      <button
+                        onClick={() => moveChapter(c.id, 'down')}
+                        disabled={extraIdx === chapters.length - 2}
+                        aria-label="Pindah ke bawah"
+                        className="p-1 rounded-full disabled:opacity-30 disabled:cursor-not-allowed hover:bg-black/10"
+                      >
+                        <ArrowDown size={12} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Mobile: dropdown */}
+          <div className="sm:hidden relative mb-8">
+            <button
+              onClick={() => setShowChapterDropdown(!showChapterDropdown)}
+              className="w-full flex items-center justify-between gap-2 px-4 py-3 rounded-btn bg-surface border border-border text-ink font-medium text-sm"
+            >
+              <span className="truncate">{activeChapter?.title}</span>
+              <ChevronDown
+                size={16}
+                className={`text-ink-muted shrink-0 transition-transform ${showChapterDropdown ? 'rotate-180' : ''}`}
+              />
+            </button>
+
+            {showChapterDropdown && (
+              <>
+                <div className="fixed inset-0 z-30" onClick={() => setShowChapterDropdown(false)} />
+                <div className="absolute left-0 right-0 top-full mt-2 max-h-72 overflow-y-auto bg-elevated border border-border rounded-card shadow-xl z-40">
+                  {chapters.map((c, idx) => {
+                    const extraIdx = idx - 1;
+                    return (
+                      <div
+                        key={c.id}
+                        className={`flex items-center justify-between gap-2 px-4 py-3 border-b border-border last:border-b-0 ${
+                          c.id === activeChapterId ? 'bg-primary-soft text-primary-strong' : 'text-ink'
+                        }`}
+                      >
+                        <button
+                          onClick={() => { setActiveChapterId(c.id); setShowChapterDropdown(false); }}
+                          className="flex-1 text-left text-sm font-medium truncate"
+                        >
+                          {c.title}
+                        </button>
+                        {isOwner && extraIdx >= 0 && (
+                          <div className="flex items-center gap-0.5 shrink-0">
+                            <button
+                              onClick={() => moveChapter(c.id, 'up')}
+                              disabled={extraIdx === 0}
+                              aria-label="Pindah ke atas"
+                              className="p-1.5 rounded-full disabled:opacity-30 disabled:cursor-not-allowed hover:bg-surface-hover"
+                            >
+                              <ArrowUp size={12} />
+                            </button>
+                            <button
+                              onClick={() => moveChapter(c.id, 'down')}
+                              disabled={extraIdx === chapters.length - 2}
+                              aria-label="Pindah ke bawah"
+                              className="p-1.5 rounded-full disabled:opacity-30 disabled:cursor-not-allowed hover:bg-surface-hover"
+                            >
+                              <ArrowDown size={12} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </div>
+        </>
       )}
 
       {/* Story Content */}

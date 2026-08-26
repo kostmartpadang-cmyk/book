@@ -28,11 +28,16 @@ export default function Sidebar({
 
   return (
     <aside className="hidden md:flex flex-col w-56 shrink-0 h-screen sticky top-0 z-20 bg-surface border-r border-border">
-      <div className="flex items-center gap-2 px-4 pt-4 pb-2 shrink-0">
-        <div className="w-9 h-9 rounded-btn bg-primary text-white flex items-center justify-center shrink-0">
-          <BookOpen size={18} />
+      <div className="px-4 pt-4 pb-3 shrink-0">
+        <div className="flex items-center gap-2">
+          <div className="w-9 h-9 rounded-btn bg-primary text-white flex items-center justify-center shrink-0">
+            <BookOpen size={18} />
+          </div>
+          <span className="font-heading text-lg font-bold text-ink">Ruang Cerita</span>
         </div>
-        <span className="font-heading text-lg font-bold text-ink">Ruang Cerita</span>
+        <p className="font-heading italic text-xs text-ink-muted mt-2 leading-relaxed">
+          Sebab tidak semua hal mampu diucapkan, dan tidak semua perasaan menemukan tempat untuk pulang.
+        </p>
       </div>
 
       <nav className="flex flex-col gap-1 flex-1 min-h-0 overflow-y-auto px-4 py-4">
