@@ -27,6 +27,7 @@ interface Story {
   cover_url: string | null;
   user_id: string | null;
   is_published: boolean;
+  profiles: { display_name: string | null } | null;
 }
 
 interface StoryDetail {
@@ -35,6 +36,7 @@ interface StoryDetail {
   theme: string;
   user_id: string | null;
   chapters: Chapter[];
+  profiles: { display_name: string | null } | null;
 }
 
 interface Poem {
@@ -46,7 +48,11 @@ interface Poem {
   image_url: string | null;
   user_id: string | null;
   is_published: boolean;
+  profiles: { display_name: string | null } | null;
 }
+
+const authorName = (p: { profiles: { display_name: string | null } | null }) =>
+  p.profiles?.display_name?.trim() || 'Anonim';
 
 export default function Home() {
   const { theme: siteTheme } = useTheme();
@@ -619,6 +625,7 @@ export default function Home() {
                                 <BookCover
                                   title={story.title}
                                   date={formatDate(story.created_at)}
+                                  author={authorName(story)}
                                   theme={story.theme || DEFAULT_THEME}
                                   coverUrl={story.cover_url}
                                   onClick={() => openStory(story.id)}
@@ -684,7 +691,9 @@ export default function Home() {
                                 </span>
                               )}
                             </h3>
-                            <p className="text-ink-muted text-sm mb-4">{formatDate(story.created_at)}</p>
+                            <p className="text-ink-muted text-sm mb-4">
+                              {authorName(story)} · {formatDate(story.created_at)}
+                            </p>
                             <div className="mt-auto text-primary-strong text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
                               Baca sekarang <span>→</span>
                             </div>
@@ -714,6 +723,7 @@ export default function Home() {
                         <div key={poem.id} className="relative">
                           <PoemCard
                             title={poem.title}
+                            author={authorName(poem)}
                             content={poem.content}
                             imageUrl={poem.image_url}
                             theme={poem.theme || DEFAULT_THEME}
@@ -740,6 +750,7 @@ export default function Home() {
                 storyId={activeStory.id}
                 chapters={activeStory.chapters}
                 theme={activeStory.theme}
+                author={authorName(activeStory)}
                 isOwner={!!user && user.id === activeStory.user_id}
                 canClaim={!!user && !activeStory.user_id}
                 onBack={() => window.history.back()}
@@ -752,6 +763,7 @@ export default function Home() {
               <PoemReader
                 poemId={activePoem.id}
                 title={activePoem.title}
+                author={authorName(activePoem)}
                 content={activePoem.content}
                 imageUrl={activePoem.image_url}
                 theme={activePoem.theme}

@@ -2,13 +2,14 @@
 
 interface PoemCardProps {
   title: string;
+  author: string;
   content: string | null;
   imageUrl: string | null;
   theme: string;
   onClick: () => void;
 }
 
-export default function PoemCard({ title, content, imageUrl, theme, onClick }: PoemCardProps) {
+export default function PoemCard({ title, author, content, imageUrl, theme, onClick }: PoemCardProps) {
   return (
     <button
       data-theme={theme}
@@ -32,6 +33,7 @@ export default function PoemCard({ title, content, imageUrl, theme, onClick }: P
         <p className={`font-heading text-xs font-bold leading-snug line-clamp-2 ${imageUrl ? 'text-white' : 'text-primary-strong'}`}>
           {title}
         </p>
+        <p className={`text-[10px] truncate ${imageUrl ? 'text-white/80' : 'text-ink-muted'}`}>{author}</p>
       </div>
     </button>
   );

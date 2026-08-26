@@ -9,7 +9,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   try {
     const { id } = await params;
-    const { data, error } = await supabase.from('poems').select('*').eq('id', id).single();
+    const { data, error } = await supabase.from('poems').select('*, profiles(display_name)').eq('id', id).single();
     if (error) throw error;
 
     return NextResponse.json(data);

@@ -33,6 +33,7 @@ interface StoryReaderProps {
   storyId: string;
   chapters: Chapter[];
   theme?: string;
+  author?: string;
   isOwner?: boolean;
   canClaim?: boolean;
   onBack: () => void;
@@ -85,6 +86,7 @@ export default function StoryReader({
   storyId,
   chapters,
   theme = DEFAULT_THEME,
+  author,
   isOwner = false,
   canClaim = false,
   onBack,
@@ -492,6 +494,8 @@ export default function StoryReader({
           )}
         </div>
       </div>
+
+      {author && <p className="text-sm text-ink-muted mb-6">Ditulis oleh {author}</p>}
 
       {/* Chapter selector */}
       {chapters.length > 1 && (

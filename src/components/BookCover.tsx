@@ -3,12 +3,13 @@
 interface BookCoverProps {
   title: string;
   date: string;
+  author: string;
   theme: string;
   coverUrl?: string | null;
   onClick: () => void;
 }
 
-export default function BookCover({ title, date, theme, coverUrl, onClick }: BookCoverProps) {
+export default function BookCover({ title, date, author, theme, coverUrl, onClick }: BookCoverProps) {
   return (
     <button
       data-theme={theme}
@@ -27,6 +28,7 @@ export default function BookCover({ title, date, theme, coverUrl, onClick }: Boo
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
       <div className="absolute bottom-0 inset-x-0 bg-black/40 pl-4 pr-3 py-2.5">
         <p className="font-heading text-xs font-bold leading-snug line-clamp-3 text-white">{title}</p>
+        <p className="text-[10px] text-white/80 truncate">{author}</p>
         <span className="text-[10px] text-white/70">{date}</span>
       </div>
     </button>

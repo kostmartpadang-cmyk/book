@@ -12,7 +12,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const { data: story, error: storyError } = await supabase
       .from('stories')
-      .select('*')
+      .select('*, profiles(display_name)')
       .eq('id', id)
       .single();
     if (storyError) throw storyError;

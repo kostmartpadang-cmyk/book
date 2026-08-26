@@ -8,6 +8,7 @@ import { useAuth } from './AuthProvider';
 interface PoemReaderProps {
   poemId: string;
   title: string;
+  author?: string;
   content: string | null;
   imageUrl: string | null;
   theme?: string;
@@ -21,6 +22,7 @@ interface PoemReaderProps {
 export default function PoemReader({
   poemId,
   title,
+  author,
   content,
   imageUrl,
   theme = DEFAULT_THEME,
@@ -118,12 +120,13 @@ export default function PoemReader({
         ref={titleRef}
         contentEditable={canInlineEdit}
         suppressContentEditableWarning
-        className={`font-heading text-2xl sm:text-3xl font-bold text-ink text-left mb-8 ${
+        className={`font-heading text-2xl sm:text-3xl font-bold text-ink text-left mb-2 ${
           canInlineEdit ? 'focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-btn -mx-1 px-1' : ''
         }`}
       >
         {title}
       </h1>
+      {author && <p className="text-sm text-ink-muted mb-8">Ditulis oleh {author}</p>}
 
       {imageUrl ? (
         <div className="flex justify-center">

@@ -143,3 +143,58 @@ CREATE POLICY "Claim ownerless poem" ON poems
 
 CREATE POLICY "Delete own" ON poems
   FOR DELETE USING (auth.uid() = user_id);
+
+-- ============================================================
+-- Author names: a public "profiles" table (auth.users itself isn't
+-- readable by other users). One row per account, auto-created on signup.
+-- ============================================================
+CREATE TABLE profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  display_name TEXT
+);
+
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public read profiles" ON profiles
+  FOR SELECT USING (true);
+
+CREATE POLICY "Insert own profile" ON profiles
+  FOR INSERT WITH CHECK (auth.uid() = id);
+
+CREATE POLICY "Update own profile" ON profiles
+  FOR UPDATE USING (auth.uid() = id);
+
+-- Auto-create a profile row (copying the display_name chosen at signup)
+-- whenever a new account is created.
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+BEGIN
+  INSERT INTO public.profiles (id, display_name)
+  VALUES (new.id, new.raw_user_meta_data->>'display_name')
+  ON CONFLICT (id) DO NOTHING;
+  RETURN new;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- Backfill profiles for accounts created before this table existed.
+INSERT INTO public.profiles (id, display_name)
+SELECT id, raw_user_meta_data->>'display_name' FROM auth.users
+ON CONFLICT (id) DO NOTHING;
+
+-- Point stories/poems' user_id at profiles(id) instead of auth.users(id)
+-- directly, so the API can embed the author's display_name in one query.
+ALTER TABLE stories DROP CONSTRAINT IF EXISTS stories_user_id_fkey;
+ALTER TABLE stories ADD CONSTRAINT stories_user_id_fkey
+  FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE;
+
+ALTER TABLE poems DROP CONSTRAINT IF EXISTS poems_user_id_fkey;
+ALTER TABLE poems ADD CONSTRAINT poems_user_id_fkey
+  FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE;
