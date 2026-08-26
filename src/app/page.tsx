@@ -750,6 +750,7 @@ export default function Home() {
           ) : activePoem ? (
             <div className="py-4 sm:py-8 md:py-12 px-2 sm:px-4">
               <PoemReader
+                poemId={activePoem.id}
                 title={activePoem.title}
                 content={activePoem.content}
                 imageUrl={activePoem.image_url}
@@ -758,6 +759,7 @@ export default function Home() {
                 onBack={() => window.history.back()}
                 onEdit={() => openEditPoem(activePoem)}
                 onDelete={() => deletePoem(activePoem.id)}
+                onSaved={fetchPoems}
               />
             </div>
           ) : null}
