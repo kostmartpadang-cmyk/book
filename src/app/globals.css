@@ -1,26 +1,268 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ============ Theme: soft (default) — Alam Lembut: hijau & biru pastel ============ */
+:root,
+[data-theme="soft"] {
+  --bg: #f3faf7;
+  --bg-elevated: #ffffff;
+  --surface: rgba(255, 255, 255, 0.78);
+  --surface-hover: #e9f6f0;
+  --border: #c3e4d5;
+  --text: #17251f;
+  --text-muted: #43604f;
+  --primary: #6fc5a0;
+  --primary-strong: #359270;
+  --primary-soft: #dff3e8;
+  --secondary: #8fc6ea;
+  --secondary-strong: #4a95c6;
+  --secondary-soft: #e4f3fc;
+  --accent: #a7dcc9;
+  --shadow-card: 0 20px 45px -22px rgba(53, 146, 112, 0.4), 0 10px 25px -15px rgba(74, 149, 198, 0.28);
+  --font-heading: var(--font-geist-sans);
+  --font-body: var(--font-geist-sans);
+  --radius-card: 1.25rem;
+  --radius-btn: 0.9rem;
+}
+
+/* ============ Theme: kerajaan — antik, perkamen usang & kuningan tua ============ */
+[data-theme="kerajaan"] {
+  --bg: #f2e8d5;
+  --bg-elevated: #faf3e3;
+  --surface: rgba(250, 243, 227, 0.88);
+  --surface-hover: #ecdfc4;
+  --border: #c9b48a;
+  --text: #2c1810;
+  --text-muted: #6b5642;
+  --primary: #6b1f2e;
+  --primary-strong: #4d1521;
+  --primary-soft: #ecd5d8;
+  --secondary: #8a6d2f;
+  --secondary-strong: #6b5423;
+  --secondary-soft: #ede1c0;
+  --accent: #a8873f;
+  --shadow-card: 0 20px 45px -22px rgba(107, 31, 46, 0.28), 0 10px 25px -15px rgba(138, 109, 47, 0.22);
+  --font-heading: var(--font-playfair);
+  --font-body: var(--font-geist-sans);
+  --radius-card: 0.35rem;
+  --radius-btn: 0.3rem;
+}
+
+/* ============ Theme: cute — pink + baby blue, tanpa hijau ============ */
+[data-theme="cute"] {
+  --bg: #fff6fa;
+  --bg-elevated: #ffffff;
+  --surface: #ffffff;
+  --surface-hover: #ffeef6;
+  --border: #f6c9de;
+  --text: #402a3a;
+  --text-muted: #7c6277;
+  --primary: #ff8fc0;
+  --primary-strong: #e6579e;
+  --primary-soft: #ffe3f0;
+  --secondary: #a6d6f2;
+  --secondary-strong: #5aa8d9;
+  --secondary-soft: #eaf7fd;
+  --accent: #d9b8f0;
+  --shadow-card: 0 22px 48px -20px rgba(230, 87, 158, 0.45), 0 10px 25px -14px rgba(90, 168, 217, 0.3);
+  --font-heading: var(--font-baloo);
+  --font-body: var(--font-baloo);
+  --radius-card: 1.75rem;
+  --radius-btn: 1.5rem;
+}
+
+/* ============ Theme: modern — teal + steel blue, minimal ============ */
+[data-theme="modern"] {
+  --bg: #0b0f12;
+  --bg-elevated: #12181c;
+  --surface: rgba(18, 24, 28, 0.82);
+  --surface-hover: #1a2227;
+  --border: #2c363c;
+  --text: #e8eef1;
+  --text-muted: #9fb0b8;
+  --primary: #2cb8a0;
+  --primary-strong: #3ed2b8;
+  --primary-soft: #123029;
+  --secondary: #4a8fc9;
+  --secondary-strong: #62a9df;
+  --secondary-soft: #142634;
+  --accent: #2cb8a0;
+  --shadow-card: 0 25px 55px -22px rgba(0, 0, 0, 0.6);
+  --font-heading: var(--font-geist-sans);
+  --font-body: var(--font-geist-sans);
+  --radius-card: 0.5rem;
+  --radius-btn: 0.4rem;
+}
+
+/* ============ Theme: coksu — coklat susu (milk chocolate), terang ============ */
+[data-theme="coksu"] {
+  --bg: #f7f0e6;
+  --bg-elevated: #fffaf3;
+  --surface: rgba(255, 250, 243, 0.85);
+  --surface-hover: #f0e3d0;
+  --border: #ddc6a8;
+  --text: #3a2a1e;
+  --text-muted: #6b5240;
+  --primary: #a67c52;
+  --primary-strong: #7a5535;
+  --primary-soft: #ecdcc4;
+  --secondary: #c9a876;
+  --secondary-strong: #a9824f;
+  --secondary-soft: #f1e4cd;
+  --accent: #d9b384;
+  --shadow-card: 0 20px 45px -22px rgba(122, 85, 53, 0.35), 0 10px 25px -15px rgba(122, 85, 53, 0.2);
+  --font-heading: var(--font-geist-sans);
+  --font-body: var(--font-geist-sans);
+  --radius-card: 1rem;
+  --radius-btn: 0.7rem;
+}
+
+/* ============ Theme: coksu-dark — coklat susu, gelap ============ */
+[data-theme="coksu-dark"] {
+  --bg: #1c140d;
+  --bg-elevated: #241a12;
+  --surface: rgba(36, 26, 18, 0.85);
+  --surface-hover: #2e2116;
+  --border: #4a3524;
+  --text: #f0e2d0;
+  --text-muted: #b8a189;
+  --primary: #a9764a;
+  --primary-strong: #c98f5c;
+  --primary-soft: #3a281a;
+  --secondary: #8a6a4a;
+  --secondary-strong: #a9855c;
+  --secondary-soft: #33241a;
+  --accent: #d2a06a;
+  --shadow-card: 0 25px 55px -22px rgba(0, 0, 0, 0.65);
+  --font-heading: var(--font-geist-sans);
+  --font-body: var(--font-geist-sans);
+  --radius-card: 1rem;
+  --radius-btn: 0.7rem;
+}
+
+/* ============ Theme: lautan — putih & biru laut ============ */
+[data-theme="lautan"] {
+  --bg: #eef7fb;
+  --bg-elevated: #ffffff;
+  --surface: rgba(255, 255, 255, 0.85);
+  --surface-hover: #e3f2fa;
+  --border: #bfe0ee;
+  --text: #0b2e40;
+  --text-muted: #4f7688;
+  --primary: #1a7ba8;
+  --primary-strong: #0f5c80;
+  --primary-soft: #d7ecf5;
+  --secondary: #14b8a6;
+  --secondary-strong: #0f9488;
+  --secondary-soft: #d7f5f0;
+  --accent: #7dd8e8;
+  --shadow-card: 0 20px 45px -22px rgba(26, 123, 168, 0.35), 0 10px 25px -15px rgba(20, 184, 166, 0.25);
+  --font-heading: var(--font-geist-sans);
+  --font-body: var(--font-geist-sans);
+  --radius-card: 1rem;
+  --radius-btn: 0.8rem;
+}
+
+/* ============ Theme: biru — navy elegan, aksen biru cerah ============ */
+[data-theme="biru"] {
+  --bg: #0a1428;
+  --bg-elevated: #101d38;
+  --surface: rgba(16, 29, 56, 0.85);
+  --surface-hover: #16274a;
+  --border: #24365c;
+  --text: #e7eefc;
+  --text-muted: #9fb0d0;
+  --primary: #2f6fed;
+  --primary-strong: #4c86ff;
+  --primary-soft: #16274a;
+  --secondary: #38bdf8;
+  --secondary-strong: #62d1ff;
+  --secondary-soft: #123044;
+  --accent: #7dd3fc;
+  --shadow-card: 0 25px 55px -22px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(56, 189, 248, 0.12);
+  --font-heading: var(--font-geist-sans);
+  --font-body: var(--font-geist-sans);
+  --radius-card: 0.6rem;
+  --radius-btn: 0.5rem;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-canvas: var(--bg);
+  --color-elevated: var(--bg-elevated);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-border: var(--border);
+  --color-ink: var(--text);
+  --color-ink-muted: var(--text-muted);
+  --color-primary: var(--primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary: var(--secondary);
+  --color-secondary-strong: var(--secondary-strong);
+  --color-secondary-soft: var(--secondary-soft);
+  --color-accent: var(--accent);
+  --radius-card: var(--radius-card);
+  --radius-btn: var(--radius-btn);
+  --shadow-card: var(--shadow-card);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body), Arial, Helvetica, sans-serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+.shadow-card {
+  box-shadow: var(--shadow-card);
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes bg-pan {
+  0% {
+    background-position: 50% 45%;
+    transform: scale(1.02);
+  }
+  50% {
+    background-position: 52% 48%;
+    transform: scale(1.06);
+  }
+  100% {
+    background-position: 50% 45%;
+    transform: scale(1.02);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.animate-bg-pan {
+  animation: bg-pan 26s ease-in-out infinite;
+}
+
+@keyframes bg-drift {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 120px 120px;
+  }
+}
+
+.animate-bg-drift {
+  animation: bg-drift 45s linear infinite;
 }

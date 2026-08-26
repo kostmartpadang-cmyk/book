@@ -9,15 +9,15 @@ export async function GET(req: NextRequest) {
 
   try {
     const { data, error } = await supabase
-      .from('stories')
-      .select('id, title, created_at, theme, cover_url, user_id, is_published')
+      .from('poems')
+      .select('id, title, created_at, theme, image_url, content, user_id, is_published')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
 
     return NextResponse.json(data);
   } catch (error: any) {
-    console.error('Error fetching stories:', error);
+    console.error('Error fetching poems:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -33,23 +33,26 @@ export async function POST(req: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json({ error: 'Kamu harus masuk untuk menulis cerita' }, { status: 401 });
+      return NextResponse.json({ error: 'Kamu harus masuk untuk menulis puisi' }, { status: 401 });
     }
 
-    const { title, content, theme, cover_url, is_published } = await req.json();
+    const { title, content, image_url, theme, is_published } = await req.json();
 
-    if (!title || !content) {
-      return NextResponse.json({ error: 'Title and content are required' }, { status: 400 });
+    if (!title || (!content?.trim() && !image_url)) {
+      return NextResponse.json(
+        { error: 'Judul wajib diisi, dan isi puisi atau gambar wajib salah satu' },
+        { status: 400 }
+      );
     }
 
     const { data, error } = await supabase
-      .from('stories')
+      .from('poems')
       .insert([
         {
           title,
-          content,
+          content: content || null,
+          image_url: image_url || null,
           theme: theme || 'soft',
-          cover_url: cover_url || null,
           user_id: user.id,
           is_published: is_published !== false,
         },
@@ -61,7 +64,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(data);
   } catch (error: any) {
-    console.error('Error saving story:', error);
+    console.error('Error saving poem:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

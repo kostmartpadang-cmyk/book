@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import mammoth from 'mammoth';
-import pdfParse from 'pdf-parse';
+import { PDFParse } from 'pdf-parse';
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,8 +22,10 @@ export async function POST(req: NextRequest) {
       const result = await mammoth.extractRawText({ buffer });
       extractedText = result.value;
     } else if (fileName.endsWith('.pdf') || mimeType === 'application/pdf') {
-      const data = await pdfParse(buffer);
+      const parser = new PDFParse({ data: buffer });
+      const data = await parser.getText();
       extractedText = data.text;
+      await parser.destroy();
     } else {
       return NextResponse.json({ error: 'Unsupported file type. Please upload a .docx or .pdf file.' }, { status: 400 });
     }
