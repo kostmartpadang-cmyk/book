@@ -34,9 +34,9 @@ export default function StoryUploader({ onStoryLoaded }: StoryUploaderProps) {
 
   if (!user) {
     return (
-      <div className="w-full max-w-3xl mx-auto p-8 bg-white/70 backdrop-blur-xl rounded-3xl border border-emerald-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] font-sans text-center">
-        <p className="text-emerald-800 font-semibold mb-1">Kamu harus masuk dulu</p>
-        <p className="text-emerald-600/70 text-sm">Silakan masuk atau buat akun lewat sidebar untuk mulai menulis cerita.</p>
+      <div className="w-full max-w-3xl mx-auto p-8 bg-surface backdrop-blur-xl rounded-card border border-border shadow-card font-body text-center">
+        <p className="text-ink font-semibold mb-1">Kamu harus masuk dulu</p>
+        <p className="text-ink-muted text-sm">Silakan masuk atau buat akun lewat sidebar untuk mulai menulis cerita.</p>
       </div>
     );
   }
@@ -172,11 +172,11 @@ export default function StoryUploader({ onStoryLoaded }: StoryUploaderProps) {
   // Full-page chapter composer — easier to type on mobile than a small modal textarea.
   if (composerIndex !== null) {
     return (
-      <div className="fixed inset-0 z-[70] bg-white flex flex-col font-sans">
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-emerald-100 shrink-0">
+      <div data-theme={selectedTheme} className="fixed inset-0 z-[70] bg-elevated flex flex-col font-body">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-border shrink-0">
           <button
             onClick={closeComposerSave}
-            className="flex items-center gap-2 text-emerald-700 hover:text-emerald-900 font-medium"
+            className="flex items-center gap-2 text-ink-muted hover:text-ink font-medium"
           >
             <ArrowLeft size={20} /> Selesai
           </button>
@@ -185,9 +185,9 @@ export default function StoryUploader({ onStoryLoaded }: StoryUploaderProps) {
             value={composerTitle}
             onChange={(e) => setComposerTitle(e.target.value)}
             placeholder="Judul bab..."
-            className="flex-1 mx-4 text-center font-bold text-emerald-900 placeholder:text-emerald-300 focus:outline-none"
+            className="flex-1 mx-4 text-center font-bold text-ink placeholder:text-ink-muted focus:outline-none"
           />
-          <span className="text-xs text-emerald-500 shrink-0">
+          <span className="text-xs text-ink-muted shrink-0">
             {composerContent.trim() ? composerContent.trim().split(/\s+/).length : 0} kata
           </span>
         </div>
@@ -196,43 +196,43 @@ export default function StoryUploader({ onStoryLoaded }: StoryUploaderProps) {
           onChange={(e) => setComposerContent(e.target.value)}
           placeholder="Tulis isi bab di sini..."
           autoFocus
-          className="flex-1 w-full p-4 sm:p-8 text-emerald-900 placeholder:text-emerald-300 focus:outline-none resize-none text-base sm:text-lg leading-relaxed"
+          className="flex-1 w-full p-4 sm:p-8 text-ink placeholder:text-ink-muted focus:outline-none resize-none text-base sm:text-lg leading-relaxed"
         />
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-3xl mx-auto p-8 bg-white/70 backdrop-blur-xl rounded-3xl border border-emerald-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] font-sans">
+    <div data-theme={selectedTheme} className="w-full max-w-3xl mx-auto p-8 bg-surface backdrop-blur-xl rounded-card border border-border shadow-card font-body">
       <div className="mb-6">
-        <label className="block text-sm font-bold text-emerald-800 mb-2">Judul Cerita</label>
+        <label className="block text-sm font-bold text-ink mb-2">Judul Cerita</label>
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Masukkan judul cerita..."
-          className="w-full p-4 bg-white/80 border border-emerald-100 rounded-2xl text-emerald-900 placeholder:text-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 shadow-sm"
+          className="w-full p-4 bg-elevated border border-border rounded-btn text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-primary/50 shadow-sm"
         />
       </div>
 
       <div className="mb-6">
-        <label className="block text-sm font-bold text-emerald-800 mb-2">Cover Cerita (opsional)</label>
+        <label className="block text-sm font-bold text-ink mb-2">Cover Cerita (opsional)</label>
         <div className="flex items-center gap-4">
           <div
             onClick={() => coverInputRef.current?.click()}
-            className="relative w-20 h-28 shrink-0 rounded-xl border-2 border-dashed border-emerald-200 hover:border-emerald-500 bg-white/50 cursor-pointer flex items-center justify-center overflow-hidden transition-colors"
+            className="relative w-20 h-28 shrink-0 rounded-btn border-2 border-dashed border-border hover:border-primary bg-canvas cursor-pointer flex items-center justify-center overflow-hidden transition-colors"
           >
             {coverProcessing ? (
-              <Loader2 className="animate-spin text-emerald-600" size={20} />
+              <Loader2 className="animate-spin text-primary" size={20} />
             ) : coverUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={coverUrl} alt="Cover" className="w-full h-full object-cover" />
             ) : (
-              <ImageIcon className="text-emerald-300" size={24} />
+              <ImageIcon className="text-ink-muted" size={24} />
             )}
           </div>
           <div className="flex-1">
-            <p className="text-xs text-emerald-600/70 mb-2">
+            <p className="text-xs text-ink-muted mb-2">
               Gambar sampul yang muncul di rak & katalog. Kalau kosong, dipakai sampul warna polos sesuai tema.
             </p>
             {coverUrl && (
@@ -256,18 +256,18 @@ export default function StoryUploader({ onStoryLoaded }: StoryUploaderProps) {
       </div>
 
       <div className="mb-6">
-        <label className="block text-sm font-bold text-emerald-800 mb-2">Tema Tampilan Cerita</label>
-        <p className="text-xs text-emerald-600/70 mb-3">Pilih nuansa yang dipakai saat cerita ini dibaca.</p>
+        <label className="block text-sm font-bold text-ink mb-2">Tema Tampilan Cerita</label>
+        <p className="text-xs text-ink-muted mb-3">Pilih nuansa yang dipakai saat cerita ini dibaca.</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {themes.map((t) => (
             <button
               key={t.id}
               type="button"
               onClick={() => setSelectedTheme(t.id)}
-              className={`flex items-center gap-2 p-2.5 rounded-xl border text-left transition-all ${
+              className={`flex items-center gap-2 p-2.5 rounded-btn border text-left transition-all ${
                 selectedTheme === t.id
-                  ? 'border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500'
-                  : 'border-emerald-100 bg-white/60 hover:bg-emerald-50/60'
+                  ? 'border-primary bg-primary-soft ring-1 ring-primary'
+                  : 'border-border bg-elevated hover:bg-surface-hover'
               }`}
             >
               <div className="flex -space-x-1 shrink-0">
@@ -279,26 +279,26 @@ export default function StoryUploader({ onStoryLoaded }: StoryUploaderProps) {
                   />
                 ))}
               </div>
-              <span className="text-xs font-semibold text-emerald-900 truncate flex-1">{t.label}</span>
-              {selectedTheme === t.id && <Check size={14} className="text-emerald-600 shrink-0" />}
+              <span className="text-xs font-semibold text-ink truncate flex-1">{t.label}</span>
+              {selectedTheme === t.id && <Check size={14} className="text-primary-strong shrink-0" />}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="flex gap-4 mb-6 border-b border-emerald-100 pb-4">
+      <div className="flex gap-4 mb-6 border-b border-border pb-4">
         <button
           onClick={() => setActiveTab('type')}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all ${
-            activeTab === 'type' ? 'bg-emerald-600 text-white shadow-md' : 'text-emerald-600 hover:bg-emerald-50'
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-btn font-semibold transition-all ${
+            activeTab === 'type' ? 'bg-primary text-white shadow-md' : 'text-ink-muted hover:bg-surface-hover'
           }`}
         >
           <Type size={18} /> Tulis Langsung
         </button>
         <button
           onClick={() => setActiveTab('upload')}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all ${
-            activeTab === 'upload' ? 'bg-emerald-600 text-white shadow-md' : 'text-emerald-600 hover:bg-emerald-50'
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-btn font-semibold transition-all ${
+            activeTab === 'upload' ? 'bg-primary text-white shadow-md' : 'text-ink-muted hover:bg-surface-hover'
           }`}
         >
           <Upload size={18} /> Upload File (.docx/.pdf)
@@ -306,32 +306,32 @@ export default function StoryUploader({ onStoryLoaded }: StoryUploaderProps) {
       </div>
 
       <div className="mb-6">
-        <label className="block text-sm font-bold text-emerald-800 mb-2">Status</label>
+        <label className="block text-sm font-bold text-ink mb-2">Status</label>
         <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
             onClick={() => setIsPublished(true)}
-            className={`flex items-center gap-2 p-3 rounded-xl border text-left transition-all ${
-              isPublished ? 'border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500' : 'border-emerald-100 bg-white/60 hover:bg-emerald-50/60'
+            className={`flex items-center gap-2 p-3 rounded-btn border text-left transition-all ${
+              isPublished ? 'border-primary bg-primary-soft ring-1 ring-primary' : 'border-border bg-elevated hover:bg-surface-hover'
             }`}
           >
-            <Globe size={16} className="text-emerald-600 shrink-0" />
+            <Globe size={16} className="text-primary shrink-0" />
             <div>
-              <div className="text-xs font-semibold text-emerald-900">Publikasikan</div>
-              <div className="text-[11px] text-emerald-600/70">Terlihat semua orang</div>
+              <div className="text-xs font-semibold text-ink">Publikasikan</div>
+              <div className="text-[11px] text-ink-muted">Terlihat semua orang</div>
             </div>
           </button>
           <button
             type="button"
             onClick={() => setIsPublished(false)}
-            className={`flex items-center gap-2 p-3 rounded-xl border text-left transition-all ${
-              !isPublished ? 'border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500' : 'border-emerald-100 bg-white/60 hover:bg-emerald-50/60'
+            className={`flex items-center gap-2 p-3 rounded-btn border text-left transition-all ${
+              !isPublished ? 'border-primary bg-primary-soft ring-1 ring-primary' : 'border-border bg-elevated hover:bg-surface-hover'
             }`}
           >
-            <Lock size={16} className="text-emerald-600 shrink-0" />
+            <Lock size={16} className="text-primary shrink-0" />
             <div>
-              <div className="text-xs font-semibold text-emerald-900">Draft</div>
-              <div className="text-[11px] text-emerald-600/70">Cuma kamu yang lihat</div>
+              <div className="text-xs font-semibold text-ink">Draft</div>
+              <div className="text-[11px] text-ink-muted">Cuma kamu yang lihat</div>
             </div>
           </button>
         </div>
@@ -339,23 +339,23 @@ export default function StoryUploader({ onStoryLoaded }: StoryUploaderProps) {
 
       {activeTab === 'type' ? (
         <div className="space-y-4">
-          <label className="block text-sm font-bold text-emerald-800 mb-2">Bab Cerita</label>
+          <label className="block text-sm font-bold text-ink mb-2">Bab Cerita</label>
           <div className="space-y-2">
             {draftChapters.map((chapter, i) => (
               <div
                 key={i}
-                className="flex items-center gap-3 p-3 bg-white/80 border border-emerald-100 rounded-2xl"
+                className="flex items-center gap-3 p-3 bg-elevated border border-border rounded-btn"
               >
                 <button
                   onClick={() => openComposer(i)}
                   className="flex-1 flex items-center gap-3 text-left min-w-0"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-btn bg-primary-soft text-primary-strong flex items-center justify-center shrink-0">
                     <Pencil size={16} />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-emerald-900 truncate">{chapter.title || `Bab ${i + 1}`}</p>
-                    <p className="text-xs text-emerald-500 truncate">
+                    <p className="text-sm font-semibold text-ink truncate">{chapter.title || `Bab ${i + 1}`}</p>
+                    <p className="text-xs text-ink-muted truncate">
                       {chapter.content.trim()
                         ? `${chapter.content.trim().split(/\s+/).length} kata`
                         : i === 0
@@ -377,17 +377,17 @@ export default function StoryUploader({ onStoryLoaded }: StoryUploaderProps) {
             ))}
             <button
               onClick={addChapter}
-              className="w-full flex items-center justify-center gap-2 p-3 border-2 border-dashed border-emerald-200 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-2xl text-emerald-600 font-medium text-sm transition-all"
+              className="w-full flex items-center justify-center gap-2 p-3 border-2 border-dashed border-border hover:border-primary hover:bg-primary/5 rounded-btn text-ink-muted font-medium text-sm transition-all"
             >
               <Plus size={16} /> Tambah Bab
             </button>
           </div>
 
-          {error && <p className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-xl">{error}</p>}
+          {error && <p className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-btn">{error}</p>}
           <button
             onClick={handleSubmitText}
             disabled={isProcessing}
-            className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 flex justify-center items-center gap-2 text-white rounded-2xl font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-emerald-600/30"
+            className="w-full py-4 bg-primary hover:bg-primary-strong flex justify-center items-center gap-2 text-white rounded-btn font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-card"
           >
             {isProcessing ? <Loader2 className="animate-spin" size={24} /> : <Save size={24} />}
             Simpan & Mulai Membaca
@@ -396,18 +396,18 @@ export default function StoryUploader({ onStoryLoaded }: StoryUploaderProps) {
       ) : (
         <div className="space-y-4">
           <div
-            className="border-2 border-dashed border-emerald-200 rounded-3xl p-16 text-center hover:border-emerald-500 hover:bg-emerald-50/50 transition-all cursor-pointer flex flex-col items-center justify-center bg-white/50"
+            className="border-2 border-dashed border-border rounded-card p-16 text-center hover:border-primary hover:bg-primary/5 transition-all cursor-pointer flex flex-col items-center justify-center bg-canvas"
             onClick={() => fileInputRef.current?.click()}
           >
             {isProcessing ? (
-              <Loader2 className="animate-spin text-emerald-600 mb-4" size={56} />
+              <Loader2 className="animate-spin text-primary mb-4" size={56} />
             ) : (
-              <FileText className="text-emerald-400 mb-4" size={56} />
+              <FileText className="text-ink-muted mb-4" size={56} />
             )}
-            <h3 className="text-2xl font-bold text-emerald-800 mb-2">
+            <h3 className="text-2xl font-bold text-ink mb-2">
               {isProcessing ? 'Memproses File...' : 'Pilih file dokumen'}
             </h3>
-            <p className="text-emerald-600 font-medium">
+            <p className="text-ink-muted font-medium">
               Mendukung format .docx dan .pdf
             </p>
             <input
@@ -419,7 +419,7 @@ export default function StoryUploader({ onStoryLoaded }: StoryUploaderProps) {
             />
           </div>
           {error && (
-            <p className="text-red-500 text-center font-medium p-4 bg-red-50 border border-red-100 rounded-2xl">{error}</p>
+            <p className="text-red-500 text-center font-medium p-4 bg-red-50 border border-red-100 rounded-card">{error}</p>
           )}
         </div>
       )}
