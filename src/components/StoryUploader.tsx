@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Upload, Type, FileText, Loader2, Save, Check, Image as ImageIcon, X, Globe, Lock } from 'lucide-react';
+import { Upload, Type, FileText, Loader2, Save, Check, Image as ImageIcon, X, Globe, Lock, Plus, Pencil, ArrowLeft, Trash2 } from 'lucide-react';
 import { themes, DEFAULT_THEME } from '@/lib/themes';
 import { resizeImageToDataUrl } from '@/lib/image';
 import { useAuth } from './AuthProvider';
@@ -10,11 +10,19 @@ interface StoryUploaderProps {
   onStoryLoaded: (id: string, theme: string) => void;
 }
 
+interface DraftChapter {
+  title: string;
+  content: string;
+}
+
 export default function StoryUploader({ onStoryLoaded }: StoryUploaderProps) {
   const { user, authHeader } = useAuth();
   const [activeTab, setActiveTab] = useState<'upload' | 'type'>('type');
   const [title, setTitle] = useState('');
-  const [textInput, setTextInput] = useState('');
+  const [draftChapters, setDraftChapters] = useState<DraftChapter[]>([{ title: 'Bab 1', content: '' }]);
+  const [composerIndex, setComposerIndex] = useState<number | null>(null);
+  const [composerTitle, setComposerTitle] = useState('');
+  const [composerContent, setComposerContent] = useState('');
   const [selectedTheme, setSelectedTheme] = useState(DEFAULT_THEME);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [coverProcessing, setCoverProcessing] = useState(false);
@@ -102,13 +110,38 @@ export default function StoryUploader({ onStoryLoaded }: StoryUploaderProps) {
     }
   };
 
+  const openComposer = (index: number) => {
+    setComposerIndex(index);
+    setComposerTitle(draftChapters[index].title);
+    setComposerContent(draftChapters[index].content);
+  };
+
+  const closeComposerSave = () => {
+    if (composerIndex === null) return;
+    setDraftChapters((prev) =>
+      prev.map((c, i) => (i === composerIndex ? { title: composerTitle || `Bab ${i + 1}`, content: composerContent } : c))
+    );
+    setComposerIndex(null);
+  };
+
+  const addChapter = () => {
+    const nextIndex = draftChapters.length;
+    setDraftChapters((prev) => [...prev, { title: `Bab ${nextIndex + 1}`, content: '' }]);
+    openComposer(nextIndex);
+  };
+
+  const removeChapter = (index: number) => {
+    if (draftChapters.length <= 1) return;
+    setDraftChapters((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmitText = async () => {
     if (!title.trim()) {
       setError('Mohon isi judul cerita.');
       return;
     }
-    if (!textInput.trim()) {
-      setError('Isi cerita tidak boleh kosong.');
+    if (!draftChapters[0]?.content.trim()) {
+      setError('Isi Bab 1 tidak boleh kosong.');
       return;
     }
 
@@ -116,7 +149,18 @@ export default function StoryUploader({ onStoryLoaded }: StoryUploaderProps) {
     setError(null);
 
     try {
-      const saved = await saveToSupabase(title, textInput);
+      const saved = await saveToSupabase(title, draftChapters[0].content);
+
+      // Save any additional chapters written before submitting.
+      for (const chapter of draftChapters.slice(1)) {
+        if (!chapter.content.trim()) continue;
+        await fetch(`/api/stories/${saved.id}/chapters`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeader() },
+          body: JSON.stringify({ title: chapter.title, content: chapter.content }),
+        });
+      }
+
       onStoryLoaded(saved.id, selectedTheme);
     } catch (err: any) {
       setError(err.message);
@@ -125,15 +169,48 @@ export default function StoryUploader({ onStoryLoaded }: StoryUploaderProps) {
     }
   };
 
+  // Full-page chapter composer — easier to type on mobile than a small modal textarea.
+  if (composerIndex !== null) {
+    return (
+      <div className="fixed inset-0 z-[70] bg-white flex flex-col font-sans">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-emerald-100 shrink-0">
+          <button
+            onClick={closeComposerSave}
+            className="flex items-center gap-2 text-emerald-700 hover:text-emerald-900 font-medium"
+          >
+            <ArrowLeft size={20} /> Selesai
+          </button>
+          <input
+            type="text"
+            value={composerTitle}
+            onChange={(e) => setComposerTitle(e.target.value)}
+            placeholder="Judul bab..."
+            className="flex-1 mx-4 text-center font-bold text-emerald-900 placeholder:text-emerald-300 focus:outline-none"
+          />
+          <span className="text-xs text-emerald-500 shrink-0">
+            {composerContent.trim() ? composerContent.trim().split(/\s+/).length : 0} kata
+          </span>
+        </div>
+        <textarea
+          value={composerContent}
+          onChange={(e) => setComposerContent(e.target.value)}
+          placeholder="Tulis isi bab di sini..."
+          autoFocus
+          className="flex-1 w-full p-4 sm:p-8 text-emerald-900 placeholder:text-emerald-300 focus:outline-none resize-none text-base sm:text-lg leading-relaxed"
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-3xl mx-auto p-8 bg-white/70 backdrop-blur-xl rounded-3xl border border-emerald-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] font-sans">
       <div className="mb-6">
         <label className="block text-sm font-bold text-emerald-800 mb-2">Judul Cerita</label>
-        <input 
-          type="text" 
+        <input
+          type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Masukkan judul cerita..." 
+          placeholder="Masukkan judul cerita..."
           className="w-full p-4 bg-white/80 border border-emerald-100 rounded-2xl text-emerald-900 placeholder:text-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 shadow-sm"
         />
       </div>
@@ -262,12 +339,50 @@ export default function StoryUploader({ onStoryLoaded }: StoryUploaderProps) {
 
       {activeTab === 'type' ? (
         <div className="space-y-4">
-          <textarea
-            value={textInput}
-            onChange={(e) => setTextInput(e.target.value)}
-            placeholder="Tulis ceritamu di sini..."
-            className="w-full h-64 p-5 bg-white/80 border border-emerald-100 rounded-2xl text-emerald-900 placeholder:text-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 resize-none shadow-inner"
-          />
+          <label className="block text-sm font-bold text-emerald-800 mb-2">Bab Cerita</label>
+          <div className="space-y-2">
+            {draftChapters.map((chapter, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-3 p-3 bg-white/80 border border-emerald-100 rounded-2xl"
+              >
+                <button
+                  onClick={() => openComposer(i)}
+                  className="flex-1 flex items-center gap-3 text-left min-w-0"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                    <Pencil size={16} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-emerald-900 truncate">{chapter.title || `Bab ${i + 1}`}</p>
+                    <p className="text-xs text-emerald-500 truncate">
+                      {chapter.content.trim()
+                        ? `${chapter.content.trim().split(/\s+/).length} kata`
+                        : i === 0
+                          ? 'Belum ditulis (wajib diisi)'
+                          : 'Belum ditulis'}
+                    </p>
+                  </div>
+                </button>
+                {draftChapters.length > 1 && (
+                  <button
+                    onClick={() => removeChapter(i)}
+                    className="text-red-400 hover:text-red-600 shrink-0"
+                    aria-label="Hapus bab"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              onClick={addChapter}
+              className="w-full flex items-center justify-center gap-2 p-3 border-2 border-dashed border-emerald-200 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-2xl text-emerald-600 font-medium text-sm transition-all"
+            >
+              <Plus size={16} /> Tambah Bab
+            </button>
+          </div>
+
           {error && <p className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-xl">{error}</p>}
           <button
             onClick={handleSubmitText}
@@ -280,7 +395,7 @@ export default function StoryUploader({ onStoryLoaded }: StoryUploaderProps) {
         </div>
       ) : (
         <div className="space-y-4">
-          <div 
+          <div
             className="border-2 border-dashed border-emerald-200 rounded-3xl p-16 text-center hover:border-emerald-500 hover:bg-emerald-50/50 transition-all cursor-pointer flex flex-col items-center justify-center bg-white/50"
             onClick={() => fileInputRef.current?.click()}
           >

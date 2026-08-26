@@ -24,6 +24,29 @@
   --radius-btn: 0.9rem;
 }
 
+/* ============ Theme: musim-semi — hangat, mekar bunga musim semi ============ */
+[data-theme="musim-semi"] {
+  --bg: #fdf6ee;
+  --bg-elevated: #ffffff;
+  --surface: rgba(255, 255, 255, 0.8);
+  --surface-hover: #fbe9dd;
+  --border: #f0d2b8;
+  --text: #3a2a1c;
+  --text-muted: #8a6a4c;
+  --primary: #e8a05c;
+  --primary-strong: #d1823a;
+  --primary-soft: #fbe4c8;
+  --secondary: #a8c97a;
+  --secondary-strong: #7fa855;
+  --secondary-soft: #eaf3dc;
+  --accent: #f4b8c4;
+  --shadow-card: 0 20px 45px -22px rgba(209, 130, 58, 0.32), 0 10px 25px -15px rgba(127, 168, 85, 0.24);
+  --font-heading: var(--font-geist-sans);
+  --font-body: var(--font-geist-sans);
+  --radius-card: 1.25rem;
+  --radius-btn: 0.9rem;
+}
+
 /* ============ Theme: kerajaan — antik, perkamen usang & kuningan tua ============ */
 [data-theme="kerajaan"] {
   --bg: #f2e8d5;

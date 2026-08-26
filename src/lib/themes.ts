@@ -54,6 +54,12 @@ export const themes: ThemeDef[] = [
     description: 'Biru langit & periwinkle yang lembut',
     swatch: ['#6f95e0', '#8fb8e8', '#b7c9f0'],
   },
+  {
+    id: 'musim-semi',
+    label: 'Musim Semi',
+    description: 'Hangat seperti mekar bunga musim semi',
+    swatch: ['#e8a05c', '#a8c97a', '#f4b8c4'],
+  },
 ];
 
 export const DEFAULT_THEME = 'soft';
