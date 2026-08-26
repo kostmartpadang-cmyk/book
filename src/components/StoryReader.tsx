@@ -137,6 +137,14 @@ export default function StoryReader({
   }, [storyId]);
 
   const activeChapter = chapters.find((c) => c.id === activeChapterId) || chapters[0];
+  const activeChapterIdx = chapters.findIndex((c) => c.id === activeChapter?.id);
+  const nextChapter = activeChapterIdx >= 0 ? chapters[activeChapterIdx + 1] : undefined;
+
+  const goToNextChapter = () => {
+    if (!nextChapter) return;
+    setActiveChapterId(nextChapter.id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   const text = activeChapter?.content || '';
 
   // Split text into paragraphs
@@ -655,6 +663,23 @@ export default function StoryReader({
         <div className="font-body text-ink max-w-none">
           {renderEffect()}
         </div>
+      )}
+
+      {editMode === 'none' && nextChapter && (
+        <button
+          onClick={goToNextChapter}
+          className="w-full mt-8 flex items-center justify-between gap-3 p-4 rounded-card bg-surface border border-border hover:bg-surface-hover hover:border-primary/50 transition-colors text-left"
+        >
+          <div>
+            <p className="text-xs text-ink-muted font-medium mb-0.5">Lanjut ke bab berikutnya</p>
+            <p className="text-sm font-heading font-bold text-ink">{nextChapter.title}</p>
+          </div>
+          <ChevronRight size={20} className="text-primary shrink-0" />
+        </button>
+      )}
+
+      {editMode === 'none' && !nextChapter && chapters.length > 1 && (
+        <p className="text-center text-sm text-ink-muted mt-8">— Ini bab terakhir —</p>
       )}
     </div>
   );
