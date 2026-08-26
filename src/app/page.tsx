@@ -986,7 +986,7 @@ export default function Home() {
                 <textarea
                   value={editPoemContent}
                   onChange={(e) => setEditPoemContent(e.target.value)}
-                  className="w-full h-40 p-3 mb-4 bg-canvas border border-border rounded-btn text-ink font-heading italic focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+                  className="w-full h-40 p-3 mb-4 bg-canvas border border-border rounded-btn text-ink focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
                 />
                 <label className="relative inline-flex items-center gap-2 text-xs font-medium text-primary-strong cursor-pointer mb-4">
                   <ImageIcon size={14} /> Ganti dengan gambar

@@ -16,11 +16,13 @@ export default function PoemCard({ title, content, imageUrl, theme, onClick }: P
       className="group relative w-40 sm:w-44 h-52 sm:h-56 shrink-0 rounded-card shadow-card overflow-hidden text-left hover:-translate-y-2 hover:shadow-xl transition-all duration-300 bg-elevated border border-border"
     >
       {imageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={imageUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-surface-hover flex items-center justify-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={imageUrl} alt="" className="w-full h-full object-contain" />
+        </div>
       ) : (
-        <div className="absolute inset-0 flex items-center justify-center p-4">
-          <p className="font-heading italic text-sm text-ink-muted text-center leading-relaxed line-clamp-6 whitespace-pre-line">
+        <div className="absolute inset-0 flex items-start p-4">
+          <p className="font-body text-sm text-ink-muted text-left leading-relaxed line-clamp-6 whitespace-pre-line">
             {content}
           </p>
         </div>

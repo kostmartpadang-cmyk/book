@@ -54,7 +54,7 @@ export default function PoemReader({
         )}
       </div>
 
-      <h1 className="font-heading text-2xl sm:text-3xl font-bold text-ink text-center mb-8">{title}</h1>
+      <h1 className="font-heading text-2xl sm:text-3xl font-bold text-ink text-left mb-8">{title}</h1>
 
       {imageUrl ? (
         <div className="flex justify-center">
@@ -62,7 +62,7 @@ export default function PoemReader({
           <img src={imageUrl} alt={title} className="max-w-full rounded-card shadow-card" />
         </div>
       ) : (
-        <p className="font-heading italic text-lg sm:text-xl leading-loose text-center whitespace-pre-line max-w-xl mx-auto">
+        <p className="font-body text-base sm:text-lg leading-relaxed text-left whitespace-pre-line">
           {content}
         </p>
       )}

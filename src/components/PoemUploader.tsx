@@ -182,7 +182,7 @@ export default function PoemUploader({ onSaved }: PoemUploaderProps) {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={'Tulis puisimu di sini...'}
-            className="w-full h-64 p-5 bg-white/80 border border-emerald-100 rounded-2xl text-emerald-900 placeholder:text-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 resize-none shadow-inner font-serif italic"
+            className="w-full h-64 p-5 bg-white/80 border border-emerald-100 rounded-2xl text-emerald-900 placeholder:text-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 resize-none shadow-inner"
           />
         </div>
       ) : (
