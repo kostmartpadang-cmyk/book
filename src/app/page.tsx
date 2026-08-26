@@ -87,6 +87,25 @@ export default function Home() {
 
   const activePoem = poems.find((p) => p.id === activePoemId) || null;
 
+  // Opening a reader pushes a browser history entry, so the phone's back
+  // button closes the reader instead of leaving the site entirely.
+  const openPoem = (id: string) => {
+    setActivePoemId(id);
+    window.history.pushState({ view: 'reader' }, '', window.location.href);
+  };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      if (activeStory) {
+        setActiveStory(null);
+      } else if (activePoemId) {
+        setActivePoemId(null);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [activeStory, activePoemId]);
+
   // Which theme governs the current view: the story/poem's own theme while reading,
   // otherwise the site-wide theme while browsing the catalog.
   const activeTheme = activeStory ? activeStory.theme : activePoem ? activePoem.theme : siteTheme;
@@ -153,7 +172,7 @@ export default function Home() {
     }
   };
 
-  const openStory = async (id: string) => {
+  const fetchStoryDetail = async (id: string) => {
     setLoadingStory(true);
     try {
       const res = await fetch(`/api/stories/${id}`, { headers: { ...authHeader() } });
@@ -168,8 +187,15 @@ export default function Home() {
     }
   };
 
+  // Opening a reader pushes a browser history entry, so the phone's back
+  // button closes the reader instead of leaving the site entirely.
+  const openStory = async (id: string) => {
+    await fetchStoryDetail(id);
+    window.history.pushState({ view: 'reader' }, '', window.location.href);
+  };
+
   const refreshActiveStory = () => {
-    if (activeStory) openStory(activeStory.id);
+    if (activeStory) fetchStoryDetail(activeStory.id);
   };
 
   const claimStory = async () => {
@@ -691,7 +717,7 @@ export default function Home() {
                             content={poem.content}
                             imageUrl={poem.image_url}
                             theme={poem.theme || DEFAULT_THEME}
-                            onClick={() => setActivePoemId(poem.id)}
+                            onClick={() => openPoem(poem.id)}
                           />
                           <div className="absolute top-2 right-2">
                             <PoemCardMenu poem={poem} />
@@ -716,7 +742,7 @@ export default function Home() {
                 theme={activeStory.theme}
                 isOwner={!!user && user.id === activeStory.user_id}
                 canClaim={!!user && !activeStory.user_id}
-                onBack={() => setActiveStory(null)}
+                onBack={() => window.history.back()}
                 onChaptersChanged={refreshActiveStory}
                 onClaim={claimStory}
               />
@@ -729,7 +755,7 @@ export default function Home() {
                 imageUrl={activePoem.image_url}
                 theme={activePoem.theme}
                 isOwner={!!user && user.id === activePoem.user_id}
-                onBack={() => setActivePoemId(null)}
+                onBack={() => window.history.back()}
                 onEdit={() => openEditPoem(activePoem)}
                 onDelete={() => deletePoem(activePoem.id)}
               />
@@ -789,7 +815,7 @@ export default function Home() {
               onSaved={(id) => {
                 setShowCreatePoemModal(false);
                 fetchPoems();
-                setActivePoemId(id);
+                openPoem(id);
               }}
             />
           </div>
