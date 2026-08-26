@@ -100,22 +100,34 @@ export default function StoryReader({
   const [formContent, setFormContent] = useState('');
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const formTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const editableRef = useRef<HTMLDivElement>(null);
   const themeDef = themes.find((t) => t.id === theme);
 
+  const escapeHtml = (s: string) =>
+    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  const contentToHtml = (content: string) => {
+    const blocks = content.split(/\n+/).filter((p) => p.trim().length > 0);
+    if (blocks.length === 0) return '<p><br></p>';
+    return blocks.map((p) => `<p>${escapeHtml(p)}</p>`).join('');
+  };
+
+  const getEditableContent = () => {
+    const el = editableRef.current;
+    if (!el) return formContent;
+    const blocks = Array.from(el.querySelectorAll('p'));
+    if (blocks.length === 0) return (el.innerText || '').trim();
+    return blocks
+      .map((p) => (p.textContent || '').trim())
+      .filter(Boolean)
+      .join('\n\n');
+  };
+
   const insertPageBreak = () => {
-    const el = formTextareaRef.current;
+    const el = editableRef.current;
     if (!el) return;
-    const start = el.selectionStart ?? formContent.length;
-    const end = el.selectionEnd ?? formContent.length;
-    const marker = `\n${PAGE_BREAK_MARKER}\n`;
-    const next = formContent.slice(0, start) + marker + formContent.slice(end);
-    setFormContent(next);
-    requestAnimationFrame(() => {
-      el.focus();
-      const cursor = start + marker.length;
-      el.setSelectionRange(cursor, cursor);
-    });
+    el.focus();
+    document.execCommand('insertText', false, `\n${PAGE_BREAK_MARKER}\n`);
   };
 
   useEffect(() => {
@@ -133,9 +145,6 @@ export default function StoryReader({
 
   const bookPages = useMemo(() => paginateContent(text), [text]);
   const totalPages = Math.max(1, bookPages.length);
-
-  // Live preview of page boundaries for the chapter currently being edited.
-  const formPages = useMemo(() => paginateContent(formContent), [formContent]);
 
   useEffect(() => {
     setSpread(0);
@@ -159,7 +168,8 @@ export default function StoryReader({
   };
 
   const submitAddChapter = async () => {
-    if (!formContent.trim()) {
+    const content = getEditableContent();
+    if (!content.trim()) {
       setFormError('Isi bab tidak boleh kosong.');
       return;
     }
@@ -169,7 +179,7 @@ export default function StoryReader({
       const res = await fetch(`/api/stories/${storyId}/chapters`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeader() },
-        body: JSON.stringify({ title: formTitle, content: formContent }),
+        body: JSON.stringify({ title: formTitle, content }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Gagal menambah bab');
@@ -184,7 +194,8 @@ export default function StoryReader({
 
   const submitEditChapter = async () => {
     if (!activeChapter) return;
-    if (!formContent.trim()) {
+    const content = getEditableContent();
+    if (!content.trim()) {
       setFormError('Isi bab tidak boleh kosong.');
       return;
     }
@@ -198,7 +209,7 @@ export default function StoryReader({
       const res = await fetch(url, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', ...authHeader() },
-        body: JSON.stringify({ title: formTitle, content: formContent }),
+        body: JSON.stringify({ title: formTitle, content }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Gagal menyimpan perubahan');
@@ -541,43 +552,18 @@ export default function StoryReader({
               + Sisipkan Batas Halaman
             </button>
           </div>
-          <textarea
-            ref={formTextareaRef}
-            value={formContent}
-            onChange={(e) => setFormContent(e.target.value)}
-            placeholder="Tulis isi bab di sini..."
-            className="w-full h-[40vh] min-h-[220px] p-3 bg-canvas border border-border rounded-btn text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+          <div
+            key={`${activeChapterId}-${editMode}`}
+            ref={editableRef}
+            contentEditable
+            suppressContentEditableWarning
+            dangerouslySetInnerHTML={{ __html: contentToHtml(formContent) }}
+            className="font-body text-ink text-lg leading-relaxed mb-1.5 min-h-[40vh] p-3 -mx-3 rounded-btn focus:outline-none focus:ring-2 focus:ring-primary/50 [&_p]:mb-6"
           />
-          <p className="text-xs text-ink-muted mb-4 mt-1.5">
-            Klik "+ Sisipkan Batas Halaman" di posisi kursor untuk menentukan sendiri di mana halaman terpotong.
-            Tanpa itu, halaman dibagi otomatis tiap ~320 kata.
+          <p className="text-xs text-ink-muted mb-4">
+            Klik teks di atas untuk mengedit langsung. Klik "+ Sisipkan Batas Halaman" di posisi kursor untuk
+            menentukan sendiri di mana halaman terpotong — tanpa itu, halaman dibagi otomatis tiap ~320 kata.
           </p>
-
-          <label className="block text-sm font-medium text-ink-muted mb-2">
-            Pratinjau Batas Halaman <span className="font-normal">({formPages.length} halaman)</span>
-          </label>
-          <div className="w-full max-h-[35vh] min-h-[160px] overflow-y-auto p-4 mb-4 bg-canvas border border-border rounded-btn no-scrollbar">
-            {formPages.length === 0 ? (
-              <p className="text-ink-muted text-sm">Belum ada isi untuk dipratinjau.</p>
-            ) : (
-              formPages.map((page, pageIdx) => (
-                <div key={pageIdx}>
-                  {page.map((p, i) => (
-                    <p key={i} className="mb-3 leading-relaxed text-sm">
-                      {p}
-                    </p>
-                  ))}
-                  {pageIdx < formPages.length - 1 && (
-                    <div className="flex items-center gap-3 my-4 text-ink-muted/60">
-                      <div className="flex-1 h-px bg-border" />
-                      <span className="text-xs font-medium shrink-0">{pageIdx + 1}</span>
-                      <div className="flex-1 h-px bg-border" />
-                    </div>
-                  )}
-                </div>
-              ))
-            )}
-          </div>
 
           {formError && <p className="text-red-500 text-sm mb-4">{formError}</p>}
 

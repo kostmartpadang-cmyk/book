@@ -8,6 +8,7 @@ import PoemCard from '@/components/PoemCard';
 import PoemReader from '@/components/PoemReader';
 import FallingLeaves from '@/components/FallingLeaves';
 import OceanOrnaments from '@/components/OceanOrnaments';
+import SpringPetals from '@/components/SpringPetals';
 import ThemeSwitcher from '@/components/ThemeSwitcher';
 import Sidebar from '@/components/Sidebar';
 import BookCover from '@/components/BookCover';
@@ -92,6 +93,7 @@ export default function Home() {
   const showNatureBg = activeTheme === 'soft';
   const showCuteBg = activeTheme === 'cute';
   const showLautanBg = activeTheme === 'lautan';
+  const showSpringBg = activeTheme === 'musim-semi';
   const [lautanBg, setLautanBg] = useState<string | null>(null);
 
   useEffect(() => {
@@ -453,6 +455,9 @@ export default function Home() {
         />
       )}
       {showLautanBg && <OceanOrnaments />}
+
+      {/* Background: hanya untuk tema Musim Semi */}
+      {showSpringBg && <SpringPetals />}
 
       <div className="relative z-10 flex">
         {!inReader && (
