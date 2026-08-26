@@ -51,8 +51,8 @@ export const themes: ThemeDef[] = [
   {
     id: 'biru',
     label: 'Biru',
-    description: 'Navy elegan dengan aksen biru cerah',
-    swatch: ['#2f6fed', '#38bdf8', '#7dd3fc'],
+    description: 'Biru langit & periwinkle yang lembut',
+    swatch: ['#6f95e0', '#8fb8e8', '#b7c9f0'],
   },
 ];
 

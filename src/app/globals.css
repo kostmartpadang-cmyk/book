@@ -162,27 +162,27 @@
   --radius-btn: 0.8rem;
 }
 
-/* ============ Theme: biru — navy elegan, aksen biru cerah ============ */
+/* ============ Theme: biru — biru langit & periwinkle lembut ============ */
 [data-theme="biru"] {
-  --bg: #0a1428;
-  --bg-elevated: #101d38;
-  --surface: rgba(16, 29, 56, 0.85);
-  --surface-hover: #16274a;
-  --border: #24365c;
-  --text: #e7eefc;
-  --text-muted: #9fb0d0;
-  --primary: #2f6fed;
-  --primary-strong: #4c86ff;
-  --primary-soft: #16274a;
-  --secondary: #38bdf8;
-  --secondary-strong: #62d1ff;
-  --secondary-soft: #123044;
-  --accent: #7dd3fc;
-  --shadow-card: 0 25px 55px -22px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(56, 189, 248, 0.12);
+  --bg: #eef3fb;
+  --bg-elevated: #ffffff;
+  --surface: rgba(255, 255, 255, 0.85);
+  --surface-hover: #e2ecfa;
+  --border: #c7d9f2;
+  --text: #24314f;
+  --text-muted: #62719a;
+  --primary: #6f95e0;
+  --primary-strong: #4a72c9;
+  --primary-soft: #e1eafc;
+  --secondary: #8fb8e8;
+  --secondary-strong: #5d95d4;
+  --secondary-soft: #e6f1fc;
+  --accent: #b7c9f0;
+  --shadow-card: 0 20px 45px -22px rgba(74, 114, 201, 0.3), 0 10px 25px -15px rgba(93, 149, 212, 0.22);
   --font-heading: var(--font-geist-sans);
   --font-body: var(--font-geist-sans);
-  --radius-card: 0.6rem;
-  --radius-btn: 0.5rem;
+  --radius-card: 0.9rem;
+  --radius-btn: 0.7rem;
 }
 
 @theme inline {
