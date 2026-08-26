@@ -3,6 +3,7 @@
 /* ============ Theme: soft (default) — Alam Lembut: hijau & biru pastel ============ */
 :root,
 [data-theme="soft"] {
+  color-scheme: light;
   --bg: #f3faf7;
   --bg-elevated: #ffffff;
   --surface: rgba(255, 255, 255, 0.78);
@@ -26,6 +27,7 @@
 
 /* ============ Theme: musim-semi — hangat, mekar bunga musim semi ============ */
 [data-theme="musim-semi"] {
+  color-scheme: light;
   --bg: #fdf6ee;
   --bg-elevated: #ffffff;
   --surface: rgba(255, 255, 255, 0.8);
@@ -49,6 +51,7 @@
 
 /* ============ Theme: kerajaan — antik, perkamen usang & kuningan tua ============ */
 [data-theme="kerajaan"] {
+  color-scheme: light;
   --bg: #f2e8d5;
   --bg-elevated: #faf3e3;
   --surface: rgba(250, 243, 227, 0.88);
@@ -72,6 +75,7 @@
 
 /* ============ Theme: cute — pink + baby blue, tanpa hijau ============ */
 [data-theme="cute"] {
+  color-scheme: light;
   --bg: #fff6fa;
   --bg-elevated: #ffffff;
   --surface: #ffffff;
@@ -95,6 +99,7 @@
 
 /* ============ Theme: modern — teal + steel blue, minimal ============ */
 [data-theme="modern"] {
+  color-scheme: dark;
   --bg: #0b0f12;
   --bg-elevated: #12181c;
   --surface: rgba(18, 24, 28, 0.82);
@@ -118,6 +123,7 @@
 
 /* ============ Theme: coksu — coklat susu (milk chocolate), terang ============ */
 [data-theme="coksu"] {
+  color-scheme: light;
   --bg: #f7f0e6;
   --bg-elevated: #fffaf3;
   --surface: rgba(255, 250, 243, 0.85);
@@ -141,6 +147,7 @@
 
 /* ============ Theme: coksu-dark — coklat susu, gelap ============ */
 [data-theme="coksu-dark"] {
+  color-scheme: dark;
   --bg: #1c140d;
   --bg-elevated: #241a12;
   --surface: rgba(36, 26, 18, 0.85);
@@ -164,6 +171,7 @@
 
 /* ============ Theme: lautan — putih & biru laut ============ */
 [data-theme="lautan"] {
+  color-scheme: light;
   --bg: #eef7fb;
   --bg-elevated: #ffffff;
   --surface: rgba(255, 255, 255, 0.85);
@@ -187,6 +195,7 @@
 
 /* ============ Theme: biru — biru langit & periwinkle lembut ============ */
 [data-theme="biru"] {
+  color-scheme: light;
   --bg: #eef3fb;
   --bg-elevated: #ffffff;
   --surface: rgba(255, 255, 255, 0.85);
