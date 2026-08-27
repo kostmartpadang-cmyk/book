@@ -13,6 +13,7 @@ import ThemeSwitcher from '@/components/ThemeSwitcher';
 import Sidebar from '@/components/Sidebar';
 import BookCover from '@/components/BookCover';
 import AuthModal from '@/components/AuthModal';
+import EditProfileModal from '@/components/EditProfileModal';
 import { useTheme } from '@/components/ThemeProvider';
 import { useAuth } from '@/components/AuthProvider';
 import { BookOpen, PenLine, Search, X, MoreVertical, Pencil, Trash2, Loader2, Image as ImageIcon, Globe, Lock, Feather } from 'lucide-react';
@@ -88,6 +89,7 @@ export default function Home() {
   const [savingPoemEdit, setSavingPoemEdit] = useState(false);
 
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [query, setQuery] = useState('');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
@@ -501,6 +503,7 @@ export default function Home() {
             onNewStory={handleNewStoryClick}
             onNewPoem={handleNewPoemClick}
             onOpenAuth={() => setShowAuthModal(true)}
+            onOpenEditProfile={() => setShowEditProfileModal(true)}
           />
         )}
 
@@ -1066,6 +1069,7 @@ export default function Home() {
       )}
 
       {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
+      {showEditProfileModal && <EditProfileModal onClose={() => setShowEditProfileModal(false)} />}
     </main>
   );
 }

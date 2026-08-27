@@ -1,6 +1,6 @@
 'use client';
 
-import { BookOpen, Home, Library, PenLine, LogIn, LogOut, User, Feather } from 'lucide-react';
+import { BookOpen, Home, Library, PenLine, LogIn, LogOut, User, Feather, Pencil } from 'lucide-react';
 import ThemeSwitcher from './ThemeSwitcher';
 import { useAuth } from './AuthProvider';
 
@@ -12,6 +12,7 @@ interface SidebarProps {
   onNewStory: () => void;
   onNewPoem: () => void;
   onOpenAuth: () => void;
+  onOpenEditProfile: () => void;
 }
 
 export default function Sidebar({
@@ -22,6 +23,7 @@ export default function Sidebar({
   onNewStory,
   onNewPoem,
   onOpenAuth,
+  onOpenEditProfile,
 }: SidebarProps) {
   const { user, signOut } = useAuth();
   const displayName = (user?.user_metadata?.display_name as string) || user?.email || '';
@@ -78,9 +80,20 @@ export default function Sidebar({
             <div className="w-7 h-7 rounded-full bg-primary-soft text-primary-strong flex items-center justify-center shrink-0">
               <User size={14} />
             </div>
-            <span className="text-xs text-ink truncate flex-1" title={displayName}>
+            <button
+              onClick={onOpenEditProfile}
+              className="text-xs text-ink truncate flex-1 text-left hover:underline"
+              title={`Edit profil (${displayName})`}
+            >
               {displayName}
-            </span>
+            </button>
+            <button
+              onClick={onOpenEditProfile}
+              aria-label="Edit profil"
+              className="text-ink-muted hover:text-ink transition-colors shrink-0"
+            >
+              <Pencil size={14} />
+            </button>
             <button
               onClick={signOut}
               aria-label="Keluar"
