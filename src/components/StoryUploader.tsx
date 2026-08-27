@@ -4,7 +4,9 @@ import { useState, useRef } from 'react';
 import { Upload, Type, FileText, Loader2, Save, Check, Image as ImageIcon, X, Globe, Lock, Plus, Pencil, ArrowLeft, Trash2 } from 'lucide-react';
 import { themes, DEFAULT_THEME } from '@/lib/themes';
 import { resizeImageToDataUrl } from '@/lib/image';
+import { countWords, isContentEmpty } from '@/lib/richtext';
 import { useAuth } from './AuthProvider';
+import RichTextEditor from './RichTextEditor';
 
 interface StoryUploaderProps {
   onStoryLoaded: (id: string, theme: string) => void;
@@ -140,7 +142,7 @@ export default function StoryUploader({ onStoryLoaded }: StoryUploaderProps) {
       setError('Mohon isi judul cerita.');
       return;
     }
-    if (!draftChapters[0]?.content.trim()) {
+    if (isContentEmpty(draftChapters[0]?.content || '')) {
       setError('Isi Bab 1 tidak boleh kosong.');
       return;
     }
@@ -153,7 +155,7 @@ export default function StoryUploader({ onStoryLoaded }: StoryUploaderProps) {
 
       // Save any additional chapters written before submitting.
       for (const chapter of draftChapters.slice(1)) {
-        if (!chapter.content.trim()) continue;
+        if (isContentEmpty(chapter.content)) continue;
         await fetch(`/api/stories/${saved.id}/chapters`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...authHeader() },
@@ -188,16 +190,20 @@ export default function StoryUploader({ onStoryLoaded }: StoryUploaderProps) {
             className="flex-1 mx-4 text-center font-bold text-ink placeholder:text-ink-muted focus:outline-none"
           />
           <span className="text-xs text-ink-muted shrink-0">
-            {composerContent.trim() ? composerContent.trim().split(/\s+/).length : 0} kata
+            {countWords(composerContent)} kata
           </span>
         </div>
-        <textarea
-          value={composerContent}
-          onChange={(e) => setComposerContent(e.target.value)}
-          placeholder="Tulis isi bab di sini..."
-          autoFocus
-          className="flex-1 w-full p-4 sm:p-8 text-ink placeholder:text-ink-muted focus:outline-none resize-none text-base sm:text-lg leading-relaxed"
-        />
+        <div className="flex-1 overflow-y-auto p-4 sm:p-8">
+          <RichTextEditor
+            key={composerIndex}
+            value={composerContent}
+            onChange={setComposerContent}
+            placeholder="Tulis isi bab di sini..."
+            autoFocus
+            toolbarClassName="sticky top-0 z-10"
+            className="text-ink placeholder:text-ink-muted focus:outline-none text-base sm:text-lg leading-relaxed min-h-[50vh] [&_p]:mb-4"
+          />
+        </div>
       </div>
     );
   }
@@ -356,8 +362,8 @@ export default function StoryUploader({ onStoryLoaded }: StoryUploaderProps) {
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-ink truncate">{chapter.title || `Bab ${i + 1}`}</p>
                     <p className="text-xs text-ink-muted truncate">
-                      {chapter.content.trim()
-                        ? `${chapter.content.trim().split(/\s+/).length} kata`
+                      {!isContentEmpty(chapter.content)
+                        ? `${countWords(chapter.content)} kata`
                         : i === 0
                           ? 'Belum ditulis (wajib diisi)'
                           : 'Belum ditulis'}

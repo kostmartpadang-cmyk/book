@@ -20,7 +20,9 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { themes, DEFAULT_THEME } from '@/lib/themes';
+import { contentToParagraphsHtml, extractParagraphBlocks, stripHtml, isContentEmpty } from '@/lib/richtext';
 import { useAuth } from './AuthProvider';
+import RichTextEditor from './RichTextEditor';
 
 export interface Chapter {
   id: string; // 'main' for the story's built-in first chapter, otherwise a chapters.id uuid
@@ -46,37 +48,42 @@ type Effect = 'none' | 'fade' | 'typewriter' | 'book';
 const WORDS_PER_PAGE = 320;
 const PAGE_BREAK_MARKER = '[[HALAMAN]]';
 
-// If the writer placed manual page-break markers in the text, honor those
-// exactly (full control, no awkward auto-cuts). Otherwise fall back to
-// automatic pagination capped at a fixed word count per page.
-function paginateContent(content: string): string[][] {
-  if (content.includes(PAGE_BREAK_MARKER)) {
-    return content
-      .split(PAGE_BREAK_MARKER)
-      .map((segment) => segment.split(/\n+/).map((p) => p.trim()).filter((p) => p.length > 0));
+// Blocks are per-paragraph innerHTML (may contain <b>/<i>/<u>/<s> inline tags).
+// If the writer placed manual page-break markers, honor those exactly (full
+// control, no awkward auto-cuts). Otherwise fall back to automatic pagination
+// capped at a fixed word count per page — paragraphs move as a whole rather
+// than splitting mid-paragraph, since splitting HTML mid-tag isn't safe.
+function paginateBlocks(blocks: string[]): string[][] {
+  const hasManualBreaks = blocks.some((b) => stripHtml(b).trim() === PAGE_BREAK_MARKER);
+
+  if (hasManualBreaks) {
+    const pages: string[][] = [];
+    let currentPage: string[] = [];
+    for (const b of blocks) {
+      if (stripHtml(b).trim() === PAGE_BREAK_MARKER) {
+        pages.push(currentPage);
+        currentPage = [];
+      } else {
+        currentPage.push(b);
+      }
+    }
+    pages.push(currentPage);
+    return pages;
   }
 
-  const paragraphs = content.split(/\n+/).filter((p) => p.trim().length > 0);
   const pages: string[][] = [];
   let currentPage: string[] = [];
   let currentWordCount = 0;
 
-  for (const paragraph of paragraphs) {
-    const words = paragraph.split(/\s+/).filter(Boolean);
-    let start = 0;
-    while (start < words.length) {
-      const remaining = WORDS_PER_PAGE - currentWordCount;
-      if (remaining <= 0) {
-        pages.push(currentPage);
-        currentPage = [];
-        currentWordCount = 0;
-        continue;
-      }
-      const chunk = words.slice(start, start + remaining);
-      currentPage.push(chunk.join(' '));
-      currentWordCount += chunk.length;
-      start += chunk.length;
+  for (const b of blocks) {
+    const wordCount = stripHtml(b).trim().split(/\s+/).filter(Boolean).length;
+    if (currentWordCount > 0 && currentWordCount + wordCount > WORDS_PER_PAGE) {
+      pages.push(currentPage);
+      currentPage = [];
+      currentWordCount = 0;
     }
+    currentPage.push(b);
+    currentWordCount += wordCount;
   }
   if (currentPage.length) pages.push(currentPage);
   return pages;
@@ -107,31 +114,12 @@ export default function StoryReader({
   const editableRef = useRef<HTMLDivElement>(null);
   const themeDef = themes.find((t) => t.id === theme);
 
-  const escapeHtml = (s: string) =>
-    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-  const contentToHtml = (content: string) => {
-    const blocks = content.split(/\n+/).filter((p) => p.trim().length > 0);
-    if (blocks.length === 0) return '<p><br></p>';
-    return blocks.map((p) => `<p>${escapeHtml(p)}</p>`).join('');
-  };
-
-  const getEditableContent = () => {
-    const el = editableRef.current;
-    if (!el) return formContent;
-    const blocks = Array.from(el.querySelectorAll('p'));
-    if (blocks.length === 0) return (el.innerText || '').trim();
-    return blocks
-      .map((p) => (p.textContent || '').trim())
-      .filter(Boolean)
-      .join('\n\n');
-  };
-
   const insertPageBreak = () => {
     const el = editableRef.current;
     if (!el) return;
     el.focus();
-    document.execCommand('insertText', false, `\n${PAGE_BREAK_MARKER}\n`);
+    document.execCommand('insertHTML', false, `<p>${PAGE_BREAK_MARKER}</p><p><br></p>`);
+    setFormContent(el.innerHTML);
   };
 
   useEffect(() => {
@@ -149,13 +137,10 @@ export default function StoryReader({
   };
   const text = activeChapter?.content || '';
 
-  // Split text into paragraphs
-  const paragraphs = useMemo(
-    () => text.split(/\n+/).filter((p) => p.trim().length > 0),
-    [text]
-  );
+  // Per-paragraph innerHTML blocks (may contain inline <b>/<i>/<u>/<s> tags).
+  const blocks = useMemo(() => extractParagraphBlocks(text), [text]);
 
-  const bookPages = useMemo(() => paginateContent(text), [text]);
+  const bookPages = useMemo(() => paginateBlocks(blocks), [blocks]);
   const totalPages = Math.max(1, bookPages.length);
 
   useEffect(() => {
@@ -180,8 +165,8 @@ export default function StoryReader({
   };
 
   const submitAddChapter = async () => {
-    const content = getEditableContent();
-    if (!content.trim()) {
+    const content = editableRef.current?.innerHTML || formContent;
+    if (isContentEmpty(content)) {
       setFormError('Isi bab tidak boleh kosong.');
       return;
     }
@@ -206,8 +191,8 @@ export default function StoryReader({
 
   const submitEditChapter = async () => {
     if (!activeChapter) return;
-    const content = getEditableContent();
-    if (!content.trim()) {
+    const content = editableRef.current?.innerHTML || formContent;
+    if (isContentEmpty(content)) {
       setFormError('Isi bab tidak boleh kosong.');
       return;
     }
@@ -284,7 +269,7 @@ export default function StoryReader({
   const renderEffect = () => {
     switch (effect) {
       case 'fade':
-        return paragraphs.map((p, idx) => (
+        return blocks.map((b, idx) => (
           <motion.p
             key={idx}
             initial={{ opacity: 0, y: 20 }}
@@ -292,18 +277,18 @@ export default function StoryReader({
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8, delay: idx * 0.1 }}
             className="mb-6 leading-relaxed text-lg"
-          >
-            {p}
-          </motion.p>
+            dangerouslySetInnerHTML={{ __html: b }}
+          />
         ));
 
       case 'typewriter':
+        // Inline formatting isn't preserved char-by-char here — falls back to plain text.
         return (
           <motion.div
             initial={{ opacity: 1 }}
             className="mb-6 leading-relaxed text-lg whitespace-pre-wrap"
           >
-            {text.split('').map((char, index) => (
+            {stripHtml(blocks.join('\n\n')).split('').map((char, index) => (
               <motion.span
                 key={index}
                 initial={{ opacity: 0 }}
@@ -324,9 +309,7 @@ export default function StoryReader({
         return bookPages.map((page, pageIdx) => (
           <div key={pageIdx}>
             {page.map((p, i) => (
-              <p key={i} className="mb-6 leading-relaxed text-lg">
-                {p}
-              </p>
+              <p key={i} className="mb-6 leading-relaxed text-lg" dangerouslySetInnerHTML={{ __html: p }} />
             ))}
             {pageIdx < bookPages.length - 1 && (
               <div className="flex items-center gap-3 my-8 text-ink-muted/60">
@@ -359,9 +342,11 @@ export default function StoryReader({
             >
               <div className="flex-1 overflow-y-auto pr-1 no-scrollbar">
                 {pageContent?.map((p, i) => (
-                  <p key={i} className="mb-3 sm:mb-5 leading-relaxed sm:leading-loose text-sm sm:text-lg md:text-xl font-body">
-                    {p}
-                  </p>
+                  <p
+                    key={i}
+                    className="mb-3 sm:mb-5 leading-relaxed sm:leading-loose text-sm sm:text-lg md:text-xl font-body"
+                    dangerouslySetInnerHTML={{ __html: p }}
+                  />
                 ))}
               </div>
               <div className="text-xs sm:text-sm text-ink-muted text-center pt-3 sm:pt-4 shrink-0">{spread + 1}</div>
@@ -619,26 +604,28 @@ export default function StoryReader({
             className="w-full p-3 mb-4 bg-canvas border border-border rounded-btn text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-primary/50"
           />
 
-          <div className="flex items-center justify-between mb-2">
-            <label className="block text-sm font-medium text-ink-muted">Isi Bab</label>
-            <button
-              type="button"
-              onClick={insertPageBreak}
-              className="text-xs font-medium text-primary-strong hover:underline"
-            >
-              + Sisipkan Batas Halaman
-            </button>
-          </div>
-          <div
+          <label className="block text-sm font-medium text-ink-muted mb-2">Isi Bab</label>
+          <RichTextEditor
             key={`${activeChapterId}-${editMode}`}
             ref={editableRef}
-            contentEditable
-            suppressContentEditableWarning
-            dangerouslySetInnerHTML={{ __html: contentToHtml(formContent) }}
+            value={contentToParagraphsHtml(formContent)}
+            onChange={setFormContent}
             className="font-body text-ink text-lg leading-relaxed mb-1.5 min-h-[40vh] p-3 -mx-3 rounded-btn focus:outline-none focus:ring-2 focus:ring-primary/50 [&_p]:mb-6"
+            extraToolbar={
+              <button
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  insertPageBreak();
+                }}
+                className="ml-1 px-2 text-xs font-medium text-primary-strong hover:underline shrink-0"
+              >
+                + Batas Halaman
+              </button>
+            }
           />
           <p className="text-xs text-ink-muted mb-4">
-            Klik teks di atas untuk mengedit langsung. Klik "+ Sisipkan Batas Halaman" di posisi kursor untuk
+            Klik teks di atas untuk mengedit langsung. Klik "+ Batas Halaman" di posisi kursor untuk
             menentukan sendiri di mana halaman terpotong — tanpa itu, halaman dibagi otomatis tiap ~320 kata.
           </p>
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '@/lib/supabaseServer';
+import { sanitizeHtml } from '@/lib/richtext';
 
 export async function PATCH(
   req: NextRequest,
@@ -16,7 +17,7 @@ export async function PATCH(
 
     const updates: Record<string, string | number> = {};
     if (title !== undefined) updates.title = title;
-    if (content !== undefined) updates.content = content;
+    if (content !== undefined) updates.content = sanitizeHtml(content);
     if (chapter_number !== undefined) updates.chapter_number = chapter_number;
 
     if (Object.keys(updates).length === 0) {

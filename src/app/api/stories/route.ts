@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '@/lib/supabaseServer';
+import { sanitizeHtml } from '@/lib/richtext';
 
 export async function GET(req: NextRequest) {
   const supabase = getServerSupabase(req);
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest) {
       .insert([
         {
           title,
-          content,
+          content: sanitizeHtml(content),
           theme: theme || 'soft',
           cover_url: cover_url || null,
           user_id: user.id,

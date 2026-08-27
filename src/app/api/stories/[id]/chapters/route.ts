@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '@/lib/supabaseServer';
+import { sanitizeHtml } from '@/lib/richtext';
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const supabase = getServerSupabase(req);
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     const { data, error } = await supabase
       .from('chapters')
-      .insert([{ story_id: id, chapter_number: nextNumber, title: title || `Bab ${nextNumber}`, content }])
+      .insert([{ story_id: id, chapter_number: nextNumber, title: title || `Bab ${nextNumber}`, content: sanitizeHtml(content) }])
       .select()
       .single();
     if (error) throw error;

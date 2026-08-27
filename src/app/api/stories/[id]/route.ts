@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '@/lib/supabaseServer';
+import { sanitizeHtml } from '@/lib/richtext';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const supabase = getServerSupabase(req);
@@ -54,7 +55,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const updates: Record<string, string | boolean | null> = {};
     if (title !== undefined) updates.title = title;
     if (theme !== undefined) updates.theme = theme;
-    if (content !== undefined) updates.content = content;
+    if (content !== undefined) updates.content = sanitizeHtml(content);
     if (cover_url !== undefined) updates.cover_url = cover_url;
     if (is_published !== undefined) updates.is_published = is_published;
 
