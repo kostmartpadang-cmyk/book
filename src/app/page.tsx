@@ -603,7 +603,7 @@ export default function Home() {
               {section === 'stories' ? (
                 loadingStories ? (
                   <div className="text-ink-muted animate-pulse py-12 text-center">Memuat cerita...</div>
-                ) : filteredStories.length === 0 ? (
+                ) : filteredStories.length === 0 && (viewMode === 'all' || poemShelfGroups.length === 0) ? (
                   <div className="text-ink-muted text-center py-16 border-2 border-dashed border-border rounded-card bg-surface/40 backdrop-blur-sm">
                     {query ? 'Tidak ada cerita yang cocok.' : 'Belum ada cerita. Jadilah yang pertama menulis!'}
                   </div>
@@ -655,6 +655,64 @@ export default function Home() {
                         </div>
                       </div>
                     ))}
+
+                    {/* Beranda juga menampilkan rak puisi, bukan cuma cerita */}
+                    {poemShelfGroups.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-6">
+                          <Feather size={18} className="text-primary" />
+                          <h2 className="font-heading text-xl font-bold text-ink">Puisi</h2>
+                        </div>
+                        <div className="flex flex-col gap-10">
+                          {poemShelfGroups.map((group) => (
+                            <div key={group.themeDef.id}>
+                              <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                  <div className="flex -space-x-1">
+                                    {group.themeDef.swatch.map((c, i) => (
+                                      <span key={i} className="w-3 h-3 rounded-full border border-white" style={{ background: c }} />
+                                    ))}
+                                  </div>
+                                  <h3 className="font-heading text-lg font-bold text-ink">{group.themeDef.label}</h3>
+                                </div>
+                                <button
+                                  onClick={() => { setSection('poems'); setViewMode('all'); }}
+                                  className="text-sm text-primary-strong font-medium hover:underline shrink-0"
+                                >
+                                  Lihat semua →
+                                </button>
+                              </div>
+
+                              <div className="relative pb-3">
+                                <div className="flex gap-4 overflow-x-auto pb-4 -mx-1 px-1">
+                                  {group.items.map((poem) => (
+                                    <div key={poem.id} className="relative shrink-0">
+                                      <PoemCard
+                                        title={poem.title}
+                                        author={authorName(poem)}
+                                        content={poem.content}
+                                        imageUrl={poem.image_url}
+                                        theme={poem.theme || DEFAULT_THEME}
+                                        onClick={() => openPoem(poem.id)}
+                                      />
+                                      <div className="absolute top-2 right-2">
+                                        <PoemCardMenu poem={poem} />
+                                      </div>
+                                      {!poem.is_published && (
+                                        <div className="absolute top-2 left-2 bg-black/50 text-white text-[10px] font-medium px-2 py-0.5 rounded-full flex items-center gap-1">
+                                          <Lock size={10} /> Draft
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                                <div className="h-3 bg-border rounded-full mx-1 shadow-[0_8px_14px_-8px_rgba(0,0,0,0.35)]" />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
