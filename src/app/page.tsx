@@ -126,7 +126,12 @@ export default function Home() {
   useEffect(() => {
     fetchStories();
     fetchPoems();
-  }, [user]);
+    // Only re-fetch when the signed-in user actually changes (login/logout/switch
+    // account) — "user" itself is a new object on every Supabase auth event
+    // (e.g. silent token refresh on tab focus), which would otherwise trigger a
+    // refetch, flashing the "Memuat..." skeleton, far more often than intended.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   // Setiap kali tema Lautan aktif, ambil daftar foto terbaru dari /public/lautan
   // dan pilih satu secara acak — otomatis mengikuti foto baru yang ditambahkan.
@@ -150,9 +155,12 @@ export default function Home() {
     };
   }, [showLautanBg]);
 
+  // Only show the "Memuat..." skeleton on the very first load — subsequent
+  // background refetches (e.g. after saving) update the list silently instead
+  // of hiding it behind a loading state again.
   const fetchStories = async () => {
     try {
-      setLoadingStories(true);
+      if (stories.length === 0) setLoadingStories(true);
       const res = await fetch('/api/stories', { headers: { ...authHeader() } });
       const data = await res.json();
       if (res.ok && Array.isArray(data)) {
@@ -167,7 +175,7 @@ export default function Home() {
 
   const fetchPoems = async () => {
     try {
-      setLoadingPoems(true);
+      if (poems.length === 0) setLoadingPoems(true);
       const res = await fetch('/api/poems', { headers: { ...authHeader() } });
       const data = await res.json();
       if (res.ok && Array.isArray(data)) {

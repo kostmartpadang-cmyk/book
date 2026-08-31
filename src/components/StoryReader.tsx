@@ -23,6 +23,7 @@ import { themes, DEFAULT_THEME } from '@/lib/themes';
 import { contentToParagraphsHtml, extractParagraphBlocks, stripHtml, isContentEmpty } from '@/lib/richtext';
 import { useAuth } from './AuthProvider';
 import RichTextEditor from './RichTextEditor';
+import CommentSection from './CommentSection';
 
 export interface Chapter {
   id: string; // 'main' for the story's built-in first chapter, otherwise a chapters.id uuid
@@ -671,6 +672,10 @@ export default function StoryReader({
 
       {editMode === 'none' && !nextChapter && chapters.length > 1 && (
         <p className="text-center text-sm text-ink-muted mt-8">— Ini bab terakhir —</p>
+      )}
+
+      {editMode === 'none' && activeChapter && (
+        <CommentSection key={activeChapter.id} storyId={storyId} chapterId={activeChapter.id} />
       )}
     </div>
   );

@@ -198,3 +198,52 @@ ALTER TABLE stories ADD CONSTRAINT stories_user_id_fkey
 ALTER TABLE poems DROP CONSTRAINT IF EXISTS poems_user_id_fkey;
 ALTER TABLE poems ADD CONSTRAINT poems_user_id_fkey
   FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE;
+
+-- ============================================================
+-- Comments: on poems (whole poem) and on stories (per chapter).
+-- Exactly one of poem_id / story_id is set. For a story comment,
+-- chapter_id NULL means the story's own built-in first chapter
+-- (StoryReader's "main" chapter, which has no row in "chapters"),
+-- otherwise it points at a row in "chapters".
+-- ============================================================
+CREATE TABLE comments (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  poem_id UUID REFERENCES poems(id) ON DELETE CASCADE,
+  story_id UUID REFERENCES stories(id) ON DELETE CASCADE,
+  chapter_id UUID REFERENCES chapters(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  CONSTRAINT comments_one_target CHECK (
+    (poem_id IS NOT NULL AND story_id IS NULL AND chapter_id IS NULL) OR
+    (poem_id IS NULL AND story_id IS NOT NULL)
+  )
+);
+
+ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Read comments on visible content" ON comments
+  FOR SELECT USING (
+    (poem_id IS NOT NULL AND EXISTS (
+      SELECT 1 FROM poems WHERE poems.id = comments.poem_id
+        AND (poems.is_published = true OR poems.user_id = auth.uid())
+    )) OR
+    (story_id IS NOT NULL AND EXISTS (
+      SELECT 1 FROM stories WHERE stories.id = comments.story_id
+        AND (stories.is_published = true OR stories.user_id = auth.uid())
+    ))
+  );
+
+CREATE POLICY "Insert own comment" ON comments
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Delete own comment or as content owner" ON comments
+  FOR DELETE USING (
+    auth.uid() = user_id OR
+    (poem_id IS NOT NULL AND EXISTS (
+      SELECT 1 FROM poems WHERE poems.id = comments.poem_id AND poems.user_id = auth.uid()
+    )) OR
+    (story_id IS NOT NULL AND EXISTS (
+      SELECT 1 FROM stories WHERE stories.id = comments.story_id AND stories.user_id = auth.uid()
+    ))
+  );

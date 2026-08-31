@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { ArrowLeft, Pencil, Trash2, Save, Loader2 } from 'lucide-react';
 import { DEFAULT_THEME } from '@/lib/themes';
 import { useAuth } from './AuthProvider';
+import CommentSection from './CommentSection';
 
 interface PoemReaderProps {
   poemId: string;
@@ -149,6 +150,8 @@ export default function PoemReader({
       {canInlineEdit && (
         <p className="text-xs text-ink-muted mt-6">Klik judul atau isi di atas untuk mengedit langsung.</p>
       )}
+
+      <CommentSection poemId={poemId} />
     </div>
   );
 }
