@@ -389,6 +389,12 @@ export default function Home() {
       .slice(0, 10);
   }, [filteredStories]);
 
+  const latestPoems = useMemo(() => {
+    return [...filteredPoems]
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, 10);
+  }, [filteredPoems]);
+
   const shelfGroups = useMemo(() => {
     return themes
       .map((t) => ({
@@ -837,6 +843,43 @@ export default function Home() {
                 </div>
               ) : viewMode === 'shelves' ? (
                 <div className="flex flex-col gap-10">
+                  {latestPoems.length > 0 && (
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Sparkles size={16} className="text-primary" />
+                          <h2 className="font-heading text-lg font-bold text-ink">Terbaru</h2>
+                        </div>
+                      </div>
+
+                      <div className="relative pb-3">
+                        <div className="flex gap-4 overflow-x-auto pb-4 -mx-1 px-1">
+                          {latestPoems.map((poem) => (
+                            <div key={poem.id} className="relative shrink-0">
+                              <PoemCard
+                                title={poem.title}
+                                author={authorName(poem)}
+                                content={poem.content}
+                                imageUrl={poem.image_url}
+                                theme={poem.theme || DEFAULT_THEME}
+                                onClick={() => openPoem(poem.id)}
+                              />
+                              <div className="absolute top-2 right-2">
+                                <PoemCardMenu poem={poem} />
+                              </div>
+                              {!poem.is_published && (
+                                <div className="absolute top-2 left-2 bg-black/50 text-white text-[10px] font-medium px-2 py-0.5 rounded-full flex items-center gap-1">
+                                  <Lock size={10} /> Draft
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        <div className="h-3 bg-border rounded-full mx-1 shadow-[0_8px_14px_-8px_rgba(0,0,0,0.35)]" />
+                      </div>
+                    </div>
+                  )}
+
                   {poemShelfGroups.map((group) => (
                     <div key={group.themeDef.id}>
                       <div className="flex items-center justify-between mb-3">
