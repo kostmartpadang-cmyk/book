@@ -16,7 +16,7 @@ import AuthModal from '@/components/AuthModal';
 import EditProfileModal from '@/components/EditProfileModal';
 import { useTheme } from '@/components/ThemeProvider';
 import { useAuth } from '@/components/AuthProvider';
-import { BookOpen, PenLine, Search, X, MoreVertical, Pencil, Trash2, Loader2, Image as ImageIcon, Globe, Lock, Feather } from 'lucide-react';
+import { BookOpen, PenLine, Search, X, MoreVertical, Pencil, Trash2, Loader2, Image as ImageIcon, Globe, Lock, Feather, Sparkles } from 'lucide-react';
 import { themes, DEFAULT_THEME } from '@/lib/themes';
 import { resizeImageToDataUrl } from '@/lib/image';
 
@@ -376,6 +376,12 @@ export default function Home() {
     return poems.filter((p) => p.title.toLowerCase().includes(query.trim().toLowerCase()));
   }, [poems, query]);
 
+  const latestStories = useMemo(() => {
+    return [...filteredStories]
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, 10);
+  }, [filteredStories]);
+
   const shelfGroups = useMemo(() => {
     return themes
       .map((t) => ({
@@ -617,6 +623,43 @@ export default function Home() {
                   </div>
                 ) : viewMode === 'shelves' ? (
                   <div className="flex flex-col gap-10">
+                    {latestStories.length > 0 && (
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <Sparkles size={16} className="text-primary" />
+                            <h2 className="font-heading text-lg font-bold text-ink">Terbaru</h2>
+                          </div>
+                        </div>
+
+                        <div className="relative pb-3">
+                          <div className="flex gap-4 overflow-x-auto pb-4 -mx-1 px-1">
+                            {latestStories.map((story) => (
+                              <div key={story.id} className="relative">
+                                <BookCover
+                                  title={story.title}
+                                  date={formatDate(story.created_at)}
+                                  author={authorName(story)}
+                                  theme={story.theme || DEFAULT_THEME}
+                                  coverUrl={story.cover_url}
+                                  onClick={() => openStory(story.id)}
+                                />
+                                <div className="absolute top-2 right-2 bg-black/30 rounded-full">
+                                  <CardMenu story={story} />
+                                </div>
+                                {!story.is_published && (
+                                  <div className="absolute top-2 left-2 bg-black/50 text-white text-[10px] font-medium px-2 py-0.5 rounded-full flex items-center gap-1">
+                                    <Lock size={10} /> Draft
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                          <div className="h-3 bg-border rounded-full mx-1 shadow-[0_8px_14px_-8px_rgba(0,0,0,0.35)]" />
+                        </div>
+                      </div>
+                    )}
+
                     {shelfGroups.map((group) => (
                       <div key={group.themeDef.id}>
                         <div className="flex items-center justify-between mb-3">
