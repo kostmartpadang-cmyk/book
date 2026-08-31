@@ -47,31 +47,12 @@ interface StoryReaderProps {
 type Effect = 'none' | 'fade' | 'typewriter' | 'book';
 
 const WORDS_PER_PAGE = 320;
-const PAGE_BREAK_MARKER = '[[HALAMAN]]';
 
 // Blocks are per-paragraph innerHTML (may contain <b>/<i>/<u>/<s> inline tags).
-// If the writer placed manual page-break markers, honor those exactly (full
-// control, no awkward auto-cuts). Otherwise fall back to automatic pagination
-// capped at a fixed word count per page — paragraphs move as a whole rather
-// than splitting mid-paragraph, since splitting HTML mid-tag isn't safe.
+// Pagination is automatic, capped at a fixed word count per page — paragraphs
+// move as a whole rather than splitting mid-paragraph, since splitting HTML
+// mid-tag isn't safe.
 function paginateBlocks(blocks: string[]): string[][] {
-  const hasManualBreaks = blocks.some((b) => stripHtml(b).trim() === PAGE_BREAK_MARKER);
-
-  if (hasManualBreaks) {
-    const pages: string[][] = [];
-    let currentPage: string[] = [];
-    for (const b of blocks) {
-      if (stripHtml(b).trim() === PAGE_BREAK_MARKER) {
-        pages.push(currentPage);
-        currentPage = [];
-      } else {
-        currentPage.push(b);
-      }
-    }
-    pages.push(currentPage);
-    return pages;
-  }
-
   const pages: string[][] = [];
   let currentPage: string[] = [];
   let currentWordCount = 0;
@@ -114,14 +95,6 @@ export default function StoryReader({
   const [formError, setFormError] = useState<string | null>(null);
   const editableRef = useRef<HTMLDivElement>(null);
   const themeDef = themes.find((t) => t.id === theme);
-
-  const insertPageBreak = () => {
-    const el = editableRef.current;
-    if (!el) return;
-    el.focus();
-    document.execCommand('insertHTML', false, `<p>${PAGE_BREAK_MARKER}</p><p><br></p>`);
-    setFormContent(el.innerHTML);
-  };
 
   useEffect(() => {
     setActiveChapterId(chapters[0]?.id);
@@ -612,22 +585,9 @@ export default function StoryReader({
             value={contentToParagraphsHtml(formContent)}
             onChange={setFormContent}
             className="font-body text-ink text-lg leading-relaxed mb-1.5 min-h-[40vh] p-3 -mx-3 rounded-btn focus:outline-none focus:ring-2 focus:ring-primary/50 [&_p]:mb-6"
-            extraToolbar={
-              <button
-                type="button"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  insertPageBreak();
-                }}
-                className="ml-1 px-2 text-xs font-medium text-primary-strong hover:underline shrink-0"
-              >
-                + Batas Halaman
-              </button>
-            }
           />
           <p className="text-xs text-ink-muted mb-4">
-            Klik teks di atas untuk mengedit langsung. Klik "+ Batas Halaman" di posisi kursor untuk
-            menentukan sendiri di mana halaman terpotong — tanpa itu, halaman dibagi otomatis tiap ~320 kata.
+            Klik teks di atas untuk mengedit langsung. Halaman dibagi otomatis tiap ~320 kata.
           </p>
 
           {formError && <p className="text-red-500 text-sm mb-4">{formError}</p>}
