@@ -28,6 +28,7 @@ interface Story {
   cover_url: string | null;
   user_id: string | null;
   is_published: boolean;
+  view_count: number;
   profiles: { display_name: string | null } | null;
 }
 
@@ -36,6 +37,7 @@ interface StoryDetail {
   title: string;
   theme: string;
   user_id: string | null;
+  view_count: number;
   chapters: Chapter[];
   profiles: { display_name: string | null } | null;
 }
@@ -49,6 +51,7 @@ interface Poem {
   image_url: string | null;
   user_id: string | null;
   is_published: boolean;
+  view_count: number;
   profiles: { display_name: string | null } | null;
 }
 
@@ -100,6 +103,8 @@ export default function Home() {
   const openPoem = (id: string) => {
     setActivePoemId(id);
     window.history.pushState({ view: 'reader' }, '', window.location.href);
+    // Fire-and-forget: the server skips the count for the poem's own owner.
+    fetch(`/api/poems/${id}/view`, { method: 'POST', headers: { ...authHeader() } }).catch(() => {});
   };
 
   useEffect(() => {
@@ -208,6 +213,8 @@ export default function Home() {
   const openStory = async (id: string) => {
     await fetchStoryDetail(id);
     window.history.pushState({ view: 'reader' }, '', window.location.href);
+    // Fire-and-forget: the server skips the count for the story's own owner.
+    fetch(`/api/stories/${id}/view`, { method: 'POST', headers: { ...authHeader() } }).catch(() => {});
   };
 
   const refreshActiveStory = () => {
@@ -919,6 +926,7 @@ export default function Home() {
                 chapters={activeStory.chapters}
                 theme={activeStory.theme}
                 author={authorName(activeStory)}
+                viewCount={activeStory.view_count}
                 isOwner={!!user && user.id === activeStory.user_id}
                 canClaim={!!user && !activeStory.user_id}
                 onBack={() => window.history.back()}
@@ -935,6 +943,7 @@ export default function Home() {
                 content={activePoem.content}
                 imageUrl={activePoem.image_url}
                 theme={activePoem.theme}
+                viewCount={activePoem.view_count}
                 isOwner={!!user && user.id === activePoem.user_id}
                 onBack={() => window.history.back()}
                 onEdit={() => openEditPoem(activePoem)}

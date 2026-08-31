@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
   try {
     const { data, error } = await supabase
       .from('stories')
-      .select('id, title, created_at, theme, cover_url, user_id, is_published, profiles(display_name)')
+      .select('id, title, created_at, theme, cover_url, user_id, is_published, view_count, profiles(display_name)')
       .order('created_at', { ascending: false });
 
     if (error) throw error;

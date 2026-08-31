@@ -247,3 +247,36 @@ CREATE POLICY "Delete own comment or as content owner" ON comments
       SELECT 1 FROM stories WHERE stories.id = comments.story_id AND stories.user_id = auth.uid()
     ))
   );
+
+-- ============================================================
+-- View counts: bumped once per open from the client (see
+-- /api/stories/[id]/view and /api/poems/[id]/view), skipping the
+-- content's own owner. Regular users have no UPDATE grant on rows they
+-- don't own, so the bump goes through a SECURITY DEFINER function
+-- instead of a direct RLS-gated update.
+-- ============================================================
+ALTER TABLE stories ADD COLUMN IF NOT EXISTS view_count INT NOT NULL DEFAULT 0;
+ALTER TABLE poems ADD COLUMN IF NOT EXISTS view_count INT NOT NULL DEFAULT 0;
+
+CREATE OR REPLACE FUNCTION public.increment_story_view(p_story_id UUID)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+BEGIN
+  UPDATE stories SET view_count = view_count + 1 WHERE id = p_story_id;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.increment_poem_view(p_poem_id UUID)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+BEGIN
+  UPDATE poems SET view_count = view_count + 1 WHERE id = p_poem_id;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.increment_story_view(UUID) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION public.increment_poem_view(UUID) TO authenticated, anon;

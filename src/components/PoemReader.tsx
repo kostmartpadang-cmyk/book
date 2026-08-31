@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { ArrowLeft, Pencil, Trash2, Save, Loader2 } from 'lucide-react';
+import { ArrowLeft, Pencil, Trash2, Save, Loader2, Eye } from 'lucide-react';
 import { DEFAULT_THEME } from '@/lib/themes';
 import { useAuth } from './AuthProvider';
 import CommentSection from './CommentSection';
@@ -13,6 +13,7 @@ interface PoemReaderProps {
   content: string | null;
   imageUrl: string | null;
   theme?: string;
+  viewCount?: number;
   isOwner?: boolean;
   onBack: () => void;
   onEdit: () => void;
@@ -27,6 +28,7 @@ export default function PoemReader({
   content,
   imageUrl,
   theme = DEFAULT_THEME,
+  viewCount = 0,
   isOwner = false,
   onBack,
   onEdit,
@@ -127,7 +129,12 @@ export default function PoemReader({
       >
         {title}
       </h1>
-      {author && <p className="text-sm text-ink-muted mb-8">Ditulis oleh {author}</p>}
+      <p className="flex items-center gap-3 text-sm text-ink-muted mb-8">
+        {author && <span>Ditulis oleh {author}</span>}
+        <span className="flex items-center gap-1">
+          <Eye size={14} /> {viewCount} dilihat
+        </span>
+      </p>
 
       {imageUrl ? (
         <div className="flex justify-center">

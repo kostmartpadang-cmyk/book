@@ -18,6 +18,7 @@ import {
   ArrowDown,
   UserCheck,
   ChevronDown,
+  Eye,
 } from 'lucide-react';
 import { themes, DEFAULT_THEME } from '@/lib/themes';
 import { contentToParagraphsHtml, extractParagraphBlocks, stripHtml, isContentEmpty } from '@/lib/richtext';
@@ -37,6 +38,7 @@ interface StoryReaderProps {
   chapters: Chapter[];
   theme?: string;
   author?: string;
+  viewCount?: number;
   isOwner?: boolean;
   canClaim?: boolean;
   onBack: () => void;
@@ -76,6 +78,7 @@ export default function StoryReader({
   chapters,
   theme = DEFAULT_THEME,
   author,
+  viewCount = 0,
   isOwner = false,
   canClaim = false,
   onBack,
@@ -454,7 +457,12 @@ export default function StoryReader({
         </div>
       </div>
 
-      {author && <p className="text-sm text-ink-muted mb-6">Ditulis oleh {author}</p>}
+      <p className="flex items-center gap-3 text-sm text-ink-muted mb-6">
+        {author && <span>Ditulis oleh {author}</span>}
+        <span className="flex items-center gap-1">
+          <Eye size={14} /> {viewCount} dilihat
+        </span>
+      </p>
 
       {/* Chapter selector */}
       {chapters.length > 1 && (
