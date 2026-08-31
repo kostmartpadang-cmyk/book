@@ -288,13 +288,6 @@ export default function StoryReader({
             {page.map((p, i) => (
               <p key={i} className="mb-6 leading-relaxed text-lg" dangerouslySetInnerHTML={{ __html: p }} />
             ))}
-            {pageIdx < bookPages.length - 1 && (
-              <div className="flex items-center gap-3 my-8 text-ink-muted/60">
-                <div className="flex-1 h-px bg-border" />
-                <span className="text-xs font-medium shrink-0">{pageIdx + 1}</span>
-                <div className="flex-1 h-px bg-border" />
-              </div>
-            )}
           </div>
         ));
     }
