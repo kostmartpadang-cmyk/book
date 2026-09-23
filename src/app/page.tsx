@@ -6,6 +6,9 @@ import StoryReader, { Chapter } from '@/components/StoryReader';
 import PoemUploader from '@/components/PoemUploader';
 import PoemCard from '@/components/PoemCard';
 import PoemReader from '@/components/PoemReader';
+import ComplaintUploader from '@/components/ComplaintUploader';
+import ComplaintCard from '@/components/ComplaintCard';
+import ComplaintReader from '@/components/ComplaintReader';
 import FallingLeaves from '@/components/FallingLeaves';
 import OceanOrnaments from '@/components/OceanOrnaments';
 import SpringPetals from '@/components/SpringPetals';
@@ -16,7 +19,7 @@ import AuthModal from '@/components/AuthModal';
 import EditProfileModal from '@/components/EditProfileModal';
 import { useTheme } from '@/components/ThemeProvider';
 import { useAuth } from '@/components/AuthProvider';
-import { BookOpen, PenLine, Search, X, MoreVertical, Pencil, Trash2, Loader2, Image as ImageIcon, Globe, Lock, Feather, Sparkles } from 'lucide-react';
+import { BookOpen, PenLine, Search, X, MoreVertical, Pencil, Trash2, Loader2, Image as ImageIcon, Globe, Lock, Feather, Sparkles, HeartHandshake } from 'lucide-react';
 import { themes, DEFAULT_THEME } from '@/lib/themes';
 import { resizeImageToDataUrl } from '@/lib/image';
 
@@ -55,13 +58,22 @@ interface Poem {
   profiles: { display_name: string | null } | null;
 }
 
+interface Complaint {
+  id: string;
+  content: string;
+  created_at: string;
+  user_id: string | null;
+  is_published: boolean;
+  profiles: { display_name: string | null } | null;
+}
+
 const authorName = (p: { profiles: { display_name: string | null } | null }) =>
   p.profiles?.display_name?.trim() || 'Anonim';
 
 export default function Home() {
   const { theme: siteTheme } = useTheme();
   const { user, authHeader } = useAuth();
-  const [section, setSection] = useState<'stories' | 'poems'>('stories');
+  const [section, setSection] = useState<'stories' | 'poems' | 'complaints'>('stories');
 
   const [activeStory, setActiveStory] = useState<StoryDetail | null>(null);
   const [loadingStory, setLoadingStory] = useState(false);
@@ -91,12 +103,18 @@ export default function Home() {
   const [editPoemIsPublished, setEditPoemIsPublished] = useState(true);
   const [savingPoemEdit, setSavingPoemEdit] = useState(false);
 
+  const [complaints, setComplaints] = useState<Complaint[]>([]);
+  const [loadingComplaints, setLoadingComplaints] = useState(true);
+  const [activeComplaintId, setActiveComplaintId] = useState<string | null>(null);
+  const [showCreateComplaintModal, setShowCreateComplaintModal] = useState(false);
+
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [query, setQuery] = useState('');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   const activePoem = poems.find((p) => p.id === activePoemId) || null;
+  const activeComplaint = complaints.find((c) => c.id === activeComplaintId) || null;
 
   // Opening a reader pushes a browser history entry, so the phone's back
   // button closes the reader instead of leaving the site entirely.
@@ -107,17 +125,24 @@ export default function Home() {
     fetch(`/api/poems/${id}/view`, { method: 'POST', headers: { ...authHeader() } }).catch(() => {});
   };
 
+  const openComplaint = (id: string) => {
+    setActiveComplaintId(id);
+    window.history.pushState({ view: 'reader' }, '', window.location.href);
+  };
+
   useEffect(() => {
     const handlePopState = () => {
       if (activeStory) {
         setActiveStory(null);
       } else if (activePoemId) {
         setActivePoemId(null);
+      } else if (activeComplaintId) {
+        setActiveComplaintId(null);
       }
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [activeStory, activePoemId]);
+  }, [activeStory, activePoemId, activeComplaintId]);
 
   // Which theme governs the current view: the story/poem's own theme while reading,
   // otherwise the site-wide theme while browsing the catalog.
@@ -131,6 +156,7 @@ export default function Home() {
   useEffect(() => {
     fetchStories();
     fetchPoems();
+    fetchComplaints();
     // Only re-fetch when the signed-in user actually changes (login/logout/switch
     // account) — "user" itself is a new object on every Supabase auth event
     // (e.g. silent token refresh on tab focus), which would otherwise trigger a
@@ -190,6 +216,34 @@ export default function Home() {
       console.error('Failed to fetch poems:', error);
     } finally {
       setLoadingPoems(false);
+    }
+  };
+
+  const fetchComplaints = async () => {
+    try {
+      if (complaints.length === 0) setLoadingComplaints(true);
+      const res = await fetch('/api/complaints', { headers: { ...authHeader() } });
+      const data = await res.json();
+      if (res.ok && Array.isArray(data)) {
+        setComplaints(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch complaints:', error);
+    } finally {
+      setLoadingComplaints(false);
+    }
+  };
+
+  const deleteComplaint = async (id: string) => {
+    if (!confirm('Hapus keluh kesah ini? Tindakan ini tidak bisa dibatalkan.')) return;
+    try {
+      const res = await fetch(`/api/complaints/${id}`, { method: 'DELETE', headers: { ...authHeader() } });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Gagal menghapus keluh kesah');
+      if (activeComplaintId === id) setActiveComplaintId(null);
+      fetchComplaints();
+    } catch (error: any) {
+      alert(error.message);
     }
   };
 
@@ -383,6 +437,11 @@ export default function Home() {
     return poems.filter((p) => p.title.toLowerCase().includes(query.trim().toLowerCase()));
   }, [poems, query]);
 
+  const filteredComplaints = useMemo(() => {
+    if (!query.trim()) return complaints;
+    return complaints.filter((c) => c.content.toLowerCase().includes(query.trim().toLowerCase()));
+  }, [complaints, query]);
+
   const latestStories = useMemo(() => {
     return [...filteredStories]
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
@@ -427,6 +486,14 @@ export default function Home() {
       return;
     }
     setShowCreatePoemModal(true);
+  };
+
+  const handleNewComplaintClick = () => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+    setShowCreateComplaintModal(true);
   };
 
   const formatDate = (d: string) =>
@@ -500,7 +567,7 @@ export default function Home() {
     );
   };
 
-  const inReader = !!activeStory || !!activePoem;
+  const inReader = !!activeStory || !!activePoem || !!activeComplaint;
 
   return (
     <main className="min-h-screen bg-canvas text-ink selection:bg-primary/30 font-body">
@@ -538,6 +605,7 @@ export default function Home() {
             onTabChange={setViewMode}
             onNewStory={handleNewStoryClick}
             onNewPoem={handleNewPoemClick}
+            onNewComplaint={handleNewComplaintClick}
             onOpenAuth={() => setShowAuthModal(true)}
             onOpenEditProfile={() => setShowEditProfileModal(true)}
           />
@@ -566,7 +634,13 @@ export default function Home() {
                     </button>
                   )}
                   <button
-                    onClick={section === 'poems' ? handleNewPoemClick : handleNewStoryClick}
+                    onClick={
+                      section === 'poems'
+                        ? handleNewPoemClick
+                        : section === 'complaints'
+                        ? handleNewComplaintClick
+                        : handleNewStoryClick
+                    }
                     aria-label="Buat baru"
                     className="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center"
                   >
@@ -593,41 +667,74 @@ export default function Home() {
                 >
                   <Feather size={14} /> Puisi
                 </button>
+                <button
+                  onClick={() => setSection('complaints')}
+                  className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-[calc(var(--radius-btn)-4px)] text-sm font-medium transition-colors ${
+                    section === 'complaints' ? 'bg-primary-soft text-primary-strong' : 'text-ink-muted'
+                  }`}
+                >
+                  <HeartHandshake size={14} /> Keluh Kesah
+                </button>
               </div>
 
               {/* Top bar: tabs + search */}
               <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-8">
-                <div className="flex items-center gap-1 bg-surface border border-border rounded-btn p-1 shrink-0">
-                  <button
-                    onClick={() => setViewMode('shelves')}
-                    className={`px-3.5 py-1.5 rounded-[calc(var(--radius-btn)-4px)] text-sm font-medium transition-colors ${
-                      viewMode === 'shelves' ? 'bg-primary-soft text-primary-strong' : 'text-ink-muted hover:text-ink'
-                    }`}
-                  >
-                    Rak
-                  </button>
-                  <button
-                    onClick={() => setViewMode('all')}
-                    className={`px-3.5 py-1.5 rounded-[calc(var(--radius-btn)-4px)] text-sm font-medium transition-colors ${
-                      viewMode === 'all' ? 'bg-primary-soft text-primary-strong' : 'text-ink-muted hover:text-ink'
-                    }`}
-                  >
-                    {section === 'poems' ? 'Semua Puisi' : 'Semua Buku'}
-                  </button>
-                </div>
+                {section !== 'complaints' && (
+                  <div className="flex items-center gap-1 bg-surface border border-border rounded-btn p-1 shrink-0">
+                    <button
+                      onClick={() => setViewMode('shelves')}
+                      className={`px-3.5 py-1.5 rounded-[calc(var(--radius-btn)-4px)] text-sm font-medium transition-colors ${
+                        viewMode === 'shelves' ? 'bg-primary-soft text-primary-strong' : 'text-ink-muted hover:text-ink'
+                      }`}
+                    >
+                      Rak
+                    </button>
+                    <button
+                      onClick={() => setViewMode('all')}
+                      className={`px-3.5 py-1.5 rounded-[calc(var(--radius-btn)-4px)] text-sm font-medium transition-colors ${
+                        viewMode === 'all' ? 'bg-primary-soft text-primary-strong' : 'text-ink-muted hover:text-ink'
+                      }`}
+                    >
+                      {section === 'poems' ? 'Semua Puisi' : 'Semua Buku'}
+                    </button>
+                  </div>
+                )}
                 <div className="relative flex-1 max-w-md">
                   <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-muted" />
                   <input
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder={section === 'poems' ? 'Cari judul puisi...' : 'Cari judul cerita...'}
+                    placeholder={
+                      section === 'poems' ? 'Cari judul puisi...' : section === 'complaints' ? 'Cari keluh kesah...' : 'Cari judul cerita...'
+                    }
                     className="w-full pl-10 pr-4 py-2 bg-surface border border-border rounded-full text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-primary/50"
                   />
                 </div>
               </div>
 
-              {section === 'stories' ? (
+              {section === 'complaints' ? (
+                loadingComplaints ? (
+                  <div className="text-ink-muted animate-pulse py-12 text-center">Memuat...</div>
+                ) : filteredComplaints.length === 0 ? (
+                  <div className="text-ink-muted text-center py-16 border-2 border-dashed border-border rounded-card bg-surface/40 backdrop-blur-sm">
+                    {query ? 'Tidak ada yang cocok.' : 'Belum ada keluh kesah. Jadilah yang pertama curhat!'}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredComplaints.map((c) => (
+                      <ComplaintCard
+                        key={c.id}
+                        author={authorName(c)}
+                        content={c.content}
+                        isPublished={c.is_published}
+                        isOwner={!!user && user.id === c.user_id}
+                        onClick={() => openComplaint(c.id)}
+                      />
+                    ))}
+                  </div>
+                )
+              ) : section === 'stories' ? (
                 loadingStories ? (
                   <div className="text-ink-muted animate-pulse py-12 text-center">Memuat cerita...</div>
                 ) : filteredStories.length === 0 && (viewMode === 'all' || poemShelfGroups.length === 0) ? (
@@ -994,6 +1101,19 @@ export default function Home() {
                 onSaved={fetchPoems}
               />
             </div>
+          ) : activeComplaint ? (
+            <div className="py-4 sm:py-8 md:py-12 px-2 sm:px-4">
+              <ComplaintReader
+                complaintId={activeComplaint.id}
+                author={authorName(activeComplaint)}
+                content={activeComplaint.content}
+                isPublished={activeComplaint.is_published}
+                isOwner={!!user && user.id === activeComplaint.user_id}
+                onBack={() => window.history.back()}
+                onDelete={() => deleteComplaint(activeComplaint.id)}
+                onSaved={fetchComplaints}
+              />
+            </div>
           ) : null}
         </div>
       </div>
@@ -1050,6 +1170,32 @@ export default function Home() {
                 setShowCreatePoemModal(false);
                 fetchPoems();
                 openPoem(id);
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Create Complaint Modal */}
+      {showCreateComplaintModal && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 py-10 overflow-y-auto">
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowCreateComplaintModal(false)}
+          />
+          <div className="relative w-full max-w-2xl my-8">
+            <button
+              onClick={() => setShowCreateComplaintModal(false)}
+              aria-label="Tutup"
+              className="absolute -top-3 -right-3 z-10 w-9 h-9 rounded-full bg-white border border-emerald-100 shadow-lg flex items-center justify-center text-emerald-600 hover:text-emerald-800 transition-colors"
+            >
+              <X size={18} />
+            </button>
+            <ComplaintUploader
+              onSaved={(id) => {
+                setShowCreateComplaintModal(false);
+                fetchComplaints();
+                openComplaint(id);
               }}
             />
           </div>

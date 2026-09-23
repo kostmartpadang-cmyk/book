@@ -1,16 +1,17 @@
 'use client';
 
-import { BookOpen, Home, Library, PenLine, LogIn, LogOut, User, Feather, Pencil } from 'lucide-react';
+import { BookOpen, Home, Library, PenLine, LogIn, LogOut, User, Feather, Pencil, HeartHandshake } from 'lucide-react';
 import ThemeSwitcher from './ThemeSwitcher';
 import { useAuth } from './AuthProvider';
 
 interface SidebarProps {
-  section: 'stories' | 'poems';
-  onSectionChange: (s: 'stories' | 'poems') => void;
+  section: 'stories' | 'poems' | 'complaints';
+  onSectionChange: (s: 'stories' | 'poems' | 'complaints') => void;
   activeTab: 'shelves' | 'all';
   onTabChange: (t: 'shelves' | 'all') => void;
   onNewStory: () => void;
   onNewPoem: () => void;
+  onNewComplaint: () => void;
   onOpenAuth: () => void;
   onOpenEditProfile: () => void;
 }
@@ -22,6 +23,7 @@ export default function Sidebar({
   onTabChange,
   onNewStory,
   onNewPoem,
+  onNewComplaint,
   onOpenAuth,
   onOpenEditProfile,
 }: SidebarProps) {
@@ -66,6 +68,14 @@ export default function Sidebar({
           }`}
         >
           <Feather size={18} /> Puisi
+        </button>
+        <button
+          onClick={() => onSectionChange('complaints')}
+          className={`flex items-center gap-3 px-3 py-2.5 rounded-btn text-sm font-medium transition-colors ${
+            section === 'complaints' ? 'bg-primary-soft text-primary-strong' : 'text-ink-muted hover:bg-surface-hover hover:text-ink'
+          }`}
+        >
+          <HeartHandshake size={18} /> Keluh Kesah
         </button>
       </nav>
 
@@ -112,10 +122,11 @@ export default function Sidebar({
         )}
 
         <button
-          onClick={section === 'poems' ? onNewPoem : onNewStory}
+          onClick={section === 'poems' ? onNewPoem : section === 'complaints' ? onNewComplaint : onNewStory}
           className="flex items-center justify-center gap-2 px-3 py-2.5 bg-primary hover:bg-primary-strong text-white rounded-btn text-sm font-bold transition-colors"
         >
-          <PenLine size={16} /> {section === 'poems' ? 'Tulis Puisi' : 'Tulis Baru'}
+          <PenLine size={16} />
+          {section === 'poems' ? 'Tulis Puisi' : section === 'complaints' ? 'Curhat' : 'Tulis Baru'}
         </button>
       </div>
     </aside>

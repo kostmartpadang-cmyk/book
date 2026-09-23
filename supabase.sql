@@ -280,3 +280,30 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.increment_story_view(UUID) TO authenticated, anon;
 GRANT EXECUTE ON FUNCTION public.increment_poem_view(UUID) TO authenticated, anon;
+
+-- ============================================================
+-- Keluh Kesah: a place to vent/confide. Just free-form text, with the
+-- same publish/draft toggle as stories and poems — "draft" here means
+-- "only I can see this", which is the point of an unpublished vent.
+-- ============================================================
+CREATE TABLE complaints (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  content TEXT NOT NULL,
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  is_published BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE complaints ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Read published or own" ON complaints
+  FOR SELECT USING (is_published = true OR user_id = auth.uid());
+
+CREATE POLICY "Insert own" ON complaints
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Update own" ON complaints
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Delete own" ON complaints
+  FOR DELETE USING (auth.uid() = user_id);
