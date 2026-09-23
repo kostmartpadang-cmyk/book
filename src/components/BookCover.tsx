@@ -21,7 +21,7 @@ export default function BookCover({ title, date, author, theme, coverUrl, onClic
         <img src={coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
       ) : (
         <div className="absolute top-3 left-4 right-3 text-[9px] uppercase tracking-wide text-white/75 font-semibold">
-          Ruang Cerita
+          khatarasa
         </div>
       )}
       <div className="absolute inset-y-0 left-0 w-1.5 bg-black/25" />

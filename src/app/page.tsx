@@ -620,7 +620,7 @@ export default function Home() {
                   <div className="w-8 h-8 rounded-btn bg-primary text-white flex items-center justify-center">
                     <BookOpen size={16} />
                   </div>
-                  <span className="font-heading text-base font-bold text-ink">Ruang Cerita</span>
+                  <span className="font-heading text-base font-bold text-ink">khatarasa</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <ThemeSwitcher />

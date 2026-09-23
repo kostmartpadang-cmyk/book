@@ -26,7 +26,7 @@ const baloo = Baloo_2({
 });
 
 export const metadata: Metadata = {
-  title: "Ruang Cerita",
+  title: "khatarasa",
   description: "Sebab tidak semua hal mampu diucapkan, dan tidak semua perasaan menemukan tempat untuk pulang.",
 };
 

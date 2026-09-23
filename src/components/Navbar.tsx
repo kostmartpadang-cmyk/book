@@ -18,7 +18,7 @@ export default function Navbar({ query, onQueryChange, onNewStory }: NavbarProps
             <BookOpen size={18} />
           </div>
           <span className="font-heading text-lg font-bold text-ink hidden sm:block">
-            Ruang Cerita
+            khatarasa
           </span>
         </div>
 

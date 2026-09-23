@@ -37,7 +37,7 @@ export default function Sidebar({
           <div className="w-9 h-9 rounded-btn bg-primary text-white flex items-center justify-center shrink-0">
             <BookOpen size={18} />
           </div>
-          <span className="font-heading text-lg font-bold text-ink">Ruang Cerita</span>
+          <span className="font-heading text-lg font-bold text-ink">khatarasa</span>
         </div>
         <p className="font-heading italic text-xs text-ink-muted mt-2 leading-relaxed">
           Sebab tidak semua hal mampu diucapkan, dan tidak semua perasaan menemukan tempat untuk pulang.
