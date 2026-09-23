@@ -1,6 +1,6 @@
 'use client';
 
-import { BookOpen, Search, Plus } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 import ThemeSwitcher from './ThemeSwitcher';
 
 interface NavbarProps {
@@ -14,8 +14,9 @@ export default function Navbar({ query, onQueryChange, onNewStory }: NavbarProps
     <header className="sticky top-0 z-30 bg-surface backdrop-blur-lg border-b border-border">
       <div className="max-w-6xl mx-auto px-4 md:px-6 py-3 flex items-center gap-3 md:gap-6">
         <div className="flex items-center gap-2 shrink-0">
-          <div className="w-9 h-9 rounded-btn bg-primary text-white flex items-center justify-center">
-            <BookOpen size={18} />
+          <div className="w-9 h-9 rounded-btn bg-primary-soft overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-cat.png" alt="" className="w-full h-full object-cover" />
           </div>
           <span className="font-heading text-lg font-bold text-ink hidden sm:block">
             khatarasa

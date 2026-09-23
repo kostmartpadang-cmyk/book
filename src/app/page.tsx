@@ -617,8 +617,9 @@ export default function Home() {
               {/* Mobile top bar */}
               <div className="md:hidden flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-btn bg-primary text-white flex items-center justify-center">
-                    <BookOpen size={16} />
+                  <div className="w-8 h-8 rounded-btn bg-primary-soft overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/logo-cat.png" alt="" className="w-full h-full object-cover" />
                   </div>
                   <span className="font-heading text-base font-bold text-ink">khatarasa</span>
                 </div>
